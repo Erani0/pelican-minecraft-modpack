@@ -1,0 +1,9 @@
+# Code owners for automatic review requests
+
+# Default owners for everything in the repo
+* @timvida
+
+# Specific areas
+/src/Services/Providers/ @timvida
+/config/ @timvida
+/.github/ @timvida
