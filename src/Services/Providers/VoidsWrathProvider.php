@@ -8,36 +8,48 @@ use Illuminate\Support\Facades\Log;
 
 class VoidsWrathProvider implements ModpackServiceInterface
 {
-    private const API_BASE = 'https://api.voidswrath.com/v1';
+    // VoidsWrath uses a static JSON file, not a real API
+    private const JSON_URL = 'https://www.ric-rac.org/minecraft-modpack-server-installer/voidswrath.json';
 
     public function fetchModpacks(?string $query = null, int $limit = 20, int $offset = 0): array
     {
         try {
             $response = Http::timeout(config('modpacks.request_timeout', 10))
-                ->get(self::API_BASE . '/modpacks');
+                ->get(self::JSON_URL);
 
             if (!$response->successful()) {
-                Log::warning('VoidsWrath API request failed', ['status' => $response->status()]);
+                Log::warning('VoidsWrath JSON request failed', ['status' => $response->status()]);
                 return ['items' => [], 'total' => 0];
             }
 
             $packs = $response->json();
 
-            $items = collect($packs)->map(function ($pack) {
+            if (!is_array($packs)) {
+                Log::error('VoidsWrath response is not an array');
+                return ['items' => [], 'total' => 0];
+            }
+
+            // Map all packs first
+            $allItems = collect($packs)->map(function ($pack) {
                 return [
-                    'id' => $pack['slug'] ?? $pack['id'] ?? '',
-                    'name' => $pack['name'] ?? 'Unknown',
+                    'id' => (string) ($pack['id'] ?? ''),
+                    'name' => $pack['displayName'] ?? 'Unknown',
                     'summary' => $pack['description'] ?? '',
-                    'icon' => $pack['icon'] ?? null,
-                    'author' => 'VoidsWrath',
+                    'icon' => $pack['logo'] ?? null,
+                    'author' => 'Voids Wrath',
                     'downloads' => 0,
                     'updated_at' => null,
                 ];
-            })->slice($offset, $limit)->values()->toArray();
+            })->values();
+
+            $total = $allItems->count();
+
+            // Apply pagination
+            $items = $allItems->slice($offset, $limit)->values()->toArray();
 
             return [
                 'items' => $items,
-                'total' => count($packs),
+                'total' => $total,
             ];
         } catch (\Exception $e) {
             Log::error('Error fetching VoidsWrath modpacks', ['error' => $e->getMessage()]);
@@ -47,87 +59,54 @@ class VoidsWrathProvider implements ModpackServiceInterface
 
     public function fetchVersions(string $modpackId): array
     {
-        try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
-                ->get(self::API_BASE . "/modpacks/{$modpackId}/versions");
-
-            if (!$response->successful()) {
-                return [
-                    [
-                        'id' => 'latest',
-                        'name' => 'Latest',
-                        'version_number' => 'latest',
-                        'published_at' => null,
-                        'downloads' => 0,
-                        'changelog' => '',
-                    ],
-                ];
-            }
-
-            $versions = $response->json();
-
-            if (empty($versions)) {
-                return [
-                    [
-                        'id' => 'latest',
-                        'name' => 'Latest',
-                        'version_number' => 'latest',
-                        'published_at' => null,
-                        'downloads' => 0,
-                        'changelog' => '',
-                    ],
-                ];
-            }
-
-            return collect($versions)->map(function ($version) {
-                return [
-                    'id' => $version['id'] ?? 'latest',
-                    'name' => $version['name'] ?? 'Latest',
-                    'version_number' => $version['version'] ?? 'latest',
-                    'published_at' => $version['released_at'] ?? null,
-                    'downloads' => 0,
-                    'changelog' => '',
-                ];
-            })->toArray();
-        } catch (\Exception $e) {
-            Log::error('Error fetching VoidsWrath versions', ['error' => $e->getMessage()]);
-            return [
-                [
-                    'id' => 'latest',
-                    'name' => 'Latest',
-                    'version_number' => 'latest',
-                    'published_at' => null,
-                    'downloads' => 0,
-                    'changelog' => '',
-                ],
-            ];
-        }
+        // VoidsWrath only has latest version
+        return [
+            [
+                'id' => 'latest',
+                'name' => 'Latest',
+                'version_number' => 'latest',
+                'published_at' => null,
+                'downloads' => 0,
+                'changelog' => '',
+            ],
+        ];
     }
 
     public function fetchDetails(string $modpackId): ?array
     {
         try {
             $response = Http::timeout(config('modpacks.request_timeout', 10))
-                ->get(self::API_BASE . "/modpacks/{$modpackId}");
+                ->get(self::JSON_URL);
 
             if (!$response->successful()) {
                 return null;
             }
 
-            $pack = $response->json();
+            $packs = $response->json();
+
+            if (!is_array($packs)) {
+                return null;
+            }
+
+            $pack = collect($packs)->firstWhere('id', (int) $modpackId);
+
+            if (!$pack) {
+                Log::warning('VoidsWrath modpack not found', ['id' => $modpackId]);
+                return null;
+            }
 
             return [
-                'id' => $pack['slug'] ?? $pack['id'] ?? $modpackId,
-                'name' => $pack['name'] ?? 'Unknown',
+                'id' => (string) $pack['id'],
+                'name' => $pack['displayName'] ?? 'Unknown',
                 'summary' => $pack['description'] ?? '',
                 'body' => $pack['description'] ?? '',
-                'icon' => $pack['icon'] ?? null,
-                'author' => 'VoidsWrath',
+                'icon' => $pack['logo'] ?? null,
+                'author' => 'Voids Wrath',
                 'downloads' => 0,
                 'followers' => 0,
                 'published_at' => null,
                 'updated_at' => null,
-                'url' => "https://www.voidswrath.com/modpacks/{$modpackId}",
+                'url' => $pack['platformUrl'] ?? 'https://www.voidswrath.com/',
             ];
         } catch (\Exception $e) {
             Log::error('Error fetching VoidsWrath details', ['error' => $e->getMessage()]);
@@ -137,12 +116,35 @@ class VoidsWrathProvider implements ModpackServiceInterface
 
     public function fetchDownloadInfo(string $modpackId, string $versionId): ?array
     {
-        return [
-            'url' => null,
-            'filename' => "voidswrath-{$modpackId}-{$versionId}.zip",
-            'size' => 0,
-            'hash' => null,
-            'requires_launcher' => true,
-        ];
+        try {
+            $response = Http::timeout(config('modpacks.request_timeout', 10))
+                ->get(self::JSON_URL);
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $packs = $response->json();
+
+            if (!is_array($packs)) {
+                return null;
+            }
+
+            $pack = collect($packs)->firstWhere('id', (int) $modpackId);
+
+            if (!$pack || !isset($pack['serverPackUrl'])) {
+                return null;
+            }
+
+            return [
+                'url' => $pack['serverPackUrl'],
+                'filename' => basename($pack['serverPackUrl']),
+                'size' => 0,
+                'hash' => null,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error fetching VoidsWrath download info', ['error' => $e->getMessage()]);
+            return null;
+        }
     }
 }

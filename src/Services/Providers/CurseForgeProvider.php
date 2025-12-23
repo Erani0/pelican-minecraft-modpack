@@ -17,17 +17,28 @@ class CurseForgeProvider implements ModpackServiceInterface
         $apiKey = config('modpacks.curseforge_api_key');
 
         if (empty($apiKey)) {
-            Log::warning('CurseForge API key not configured');
+            Log::warning('CurseForge API key not configured - requests will fail');
         }
 
         return [
             'Accept' => 'application/json',
-            'x-api-key' => $apiKey,
+            'x-api-key' => $apiKey ?: '',
         ];
+    }
+
+    private function hasApiKey(): bool
+    {
+        $apiKey = config('modpacks.curseforge_api_key');
+        return !empty($apiKey);
     }
 
     public function fetchModpacks(?string $query = null, int $limit = 20, int $offset = 0): array
     {
+        if (!$this->hasApiKey()) {
+            Log::error('CurseForge API key is required but not configured');
+            return ['items' => [], 'total' => 0];
+        }
+
         try {
             $params = [
                 'gameId' => self::GAME_ID,
@@ -79,6 +90,10 @@ class CurseForgeProvider implements ModpackServiceInterface
 
     public function fetchVersions(string $modpackId): array
     {
+        if (!$this->hasApiKey()) {
+            return [];
+        }
+
         try {
             $response = Http::withHeaders($this->getHeaders())
                 ->timeout(config('modpacks.request_timeout', 10))
@@ -109,6 +124,10 @@ class CurseForgeProvider implements ModpackServiceInterface
 
     public function fetchDetails(string $modpackId): ?array
     {
+        if (!$this->hasApiKey()) {
+            return null;
+        }
+
         try {
             $response = Http::withHeaders($this->getHeaders())
                 ->timeout(config('modpacks.request_timeout', 10))
@@ -146,6 +165,10 @@ class CurseForgeProvider implements ModpackServiceInterface
 
     public function fetchDownloadInfo(string $modpackId, string $versionId): ?array
     {
+        if (!$this->hasApiKey()) {
+            return null;
+        }
+
         try {
             $response = Http::withHeaders($this->getHeaders())
                 ->timeout(config('modpacks.request_timeout', 10))

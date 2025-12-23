@@ -30,7 +30,13 @@ class MinecraftModpacksPlugin implements HasPluginSettings, Plugin
 
     public function boot(Panel $panel): void
     {
-        // Plugin boot logic if needed
+        try {
+            if (class_exists(\Database\Seeders\MinecraftModpacksSeeder::class)) {
+                (new \Database\Seeders\MinecraftModpacksSeeder())->run();
+            }
+        } catch (\Throwable $e) {
+            // Avoid breaking panel boot if seeding fails.
+        }
     }
 
     public function getSettingsForm(): array

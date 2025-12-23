@@ -13,12 +13,16 @@ class TechnicProvider implements ModpackServiceInterface
     public function fetchModpacks(?string $query = null, int $limit = 20, int $offset = 0): array
     {
         try {
-            if (empty($query)) {
-                return ['items' => [], 'total' => 0];
-            }
+            // Technic requires a search query, use 'Technic' as default
+            $searchQuery = empty($query) ? 'Technic' : $query;
+
+            $build = $this->getBuild();
 
             $response = Http::timeout(config('modpacks.request_timeout', 10))
-                ->get(self::API_BASE . '/search', ['q' => $query]);
+                ->get(self::API_BASE . '/search', [
+                    'q' => $searchQuery,
+                    'build' => $build,
+                ]);
 
             if (!$response->successful()) {
                 Log::warning('Technic API request failed', ['status' => $response->status()]);
@@ -28,22 +32,17 @@ class TechnicProvider implements ModpackServiceInterface
             $data = $response->json();
             $packs = $data['modpacks'] ?? [];
 
-            $items = collect($packs)->take($limit)->map(function ($slug) {
-                $details = $this->fetchDetails($slug);
-                if (!$details) {
-                    return null;
-                }
-
+            $items = collect($packs)->take($limit)->map(function ($pack) {
                 return [
-                    'id' => $slug,
-                    'name' => $details['name'],
-                    'summary' => $details['summary'],
-                    'icon' => $details['icon'],
-                    'author' => $details['author'],
-                    'downloads' => $details['downloads'],
+                    'id' => $pack['slug'] ?? $pack['name'],
+                    'name' => $pack['name'] ?? 'Unknown',
+                    'summary' => $pack['description'] ?? '',
+                    'icon' => $pack['iconUrl'] ?? null,
+                    'author' => 'Technic',
+                    'downloads' => 0,
                     'updated_at' => null,
                 ];
-            })->filter()->values()->toArray();
+            })->values()->toArray();
 
             return [
                 'items' => $items,
@@ -75,11 +74,32 @@ class TechnicProvider implements ModpackServiceInterface
         ];
     }
 
-    public function fetchDetails(string $modpackId): ?array
+    private function getBuild(): string
     {
         try {
             $response = Http::timeout(config('modpacks.request_timeout', 10))
-                ->get(self::API_BASE . '/modpack/' . urlencode($modpackId));
+                ->get(self::API_BASE . '/launcher/version/stable4');
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return (string) ($data['build'] ?? '822');
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching Technic build', ['error' => $e->getMessage()]);
+        }
+
+        return '822'; // Fallback build number
+    }
+
+    public function fetchDetails(string $modpackId): ?array
+    {
+        try {
+            $build = $this->getBuild();
+
+            $response = Http::timeout(config('modpacks.request_timeout', 10))
+                ->get(self::API_BASE . '/modpack/' . urlencode($modpackId), [
+                    'build' => $build,
+                ]);
 
             if (!$response->successful()) {
                 return null;
@@ -93,11 +113,11 @@ class TechnicProvider implements ModpackServiceInterface
 
             return [
                 'id' => $modpackId,
-                'name' => $pack['name'],
+                'name' => $pack['displayName'] ?? $pack['name'] ?? 'Unknown',
                 'summary' => $pack['description'] ?? '',
                 'body' => $pack['description'] ?? '',
                 'icon' => $pack['icon']['url'] ?? null,
-                'author' => $pack['user'] ?? 'Unknown',
+                'author' => $pack['user'] ?? 'Technic',
                 'downloads' => $pack['runs'] ?? 0,
                 'followers' => 0,
                 'published_at' => null,

@@ -2,14 +2,18 @@
 
 namespace TimVida\MinecraftModpacks\Filament\Server\Pages;
 
+use App\Models\Server;
+use App\Repositories\Daemon\DaemonFileRepository;
 use App\Traits\Filament\BlockAccessInConflict;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -38,13 +42,6 @@ class ModpackBrowser extends Page implements HasTable
 
     protected static ?int $navigationSort = 25;
 
-    public ?string $selectedProvider = null;
-
-    public function mount(): void
-    {
-        $this->selectedProvider = ModpackProvider::MODRINTH->value;
-    }
-
     public function getTitle(): string
     {
         return 'Modpack Browser';
@@ -56,9 +53,21 @@ class ModpackBrowser extends Page implements HasTable
 
         return $table
             ->records(function (?string $search, int $page) use ($manager) {
-                $provider = ModpackProvider::from($this->selectedProvider ?? ModpackProvider::MODRINTH->value);
-                $perPage = 20;
+                $filters = $this->tableFilters;
+                $providerFilter = $filters['provider'] ?? ModpackProvider::MODRINTH->value;
 
+                // Extract value from filter array if needed
+                $providerValue = is_array($providerFilter)
+                    ? ($providerFilter['value'] ?? ModpackProvider::MODRINTH->value)
+                    : $providerFilter;
+
+                try {
+                    $provider = ModpackProvider::from($providerValue);
+                } catch (\Exception $e) {
+                    $provider = ModpackProvider::MODRINTH;
+                }
+
+                $perPage = 20;
                 $result = $manager->searchModpacks($provider, $search, $page, $perPage);
 
                 return new LengthAwarePaginator(
@@ -69,11 +78,21 @@ class ModpackBrowser extends Page implements HasTable
                 );
             })
             ->paginated([20])
+            ->filters([
+                SelectFilter::make('provider')
+                    ->label('Provider')
+                    ->options(
+                        collect(ModpackProvider::cases())
+                            ->mapWithKeys(fn($p) => [$p->value => $p->getDisplayName()])
+                            ->toArray()
+                    )
+                    ->default(ModpackProvider::MODRINTH->value),
+            ])
             ->columns([
                 ImageColumn::make('icon')
                     ->label('')
                     ->defaultImageUrl(url('/assets/images/egg-default.png'))
-                    ->height(60),
+                    ->size(60),
 
                 TextColumn::make('name')
                     ->searchable()
@@ -104,8 +123,29 @@ class ModpackBrowser extends Page implements HasTable
                     ->modalHeading(fn(array $record) => 'Install ' . $record['name'])
                     ->modalDescription('Select a version to install on this server')
                     ->form(function (array $record) use ($manager) {
-                        $provider = ModpackProvider::from($this->selectedProvider);
+                        $filters = $this->tableFilters;
+                        $providerFilter = $filters['provider'] ?? ModpackProvider::MODRINTH->value;
+
+                        // Extract value from filter array if needed
+                        $providerValue = is_array($providerFilter)
+                            ? ($providerFilter['value'] ?? ModpackProvider::MODRINTH->value)
+                            : $providerFilter;
+
+                        try {
+                            $provider = ModpackProvider::from($providerValue);
+                        } catch (\Exception $e) {
+                            $provider = ModpackProvider::MODRINTH;
+                        }
+
                         $versions = $manager->getModpackVersions($provider, $record['id']);
+
+                        if (empty($versions)) {
+                            return [
+                                TextEntry::make('no_versions')
+                                    ->label('')
+                                    ->state('No versions available for this modpack.'),
+                            ];
+                        }
 
                         $versionOptions = collect($versions)->mapWithKeys(function ($version) {
                             return [$version['id'] => $version['name']];
@@ -136,8 +176,23 @@ class ModpackBrowser extends Page implements HasTable
                         ];
                     })
                     ->action(function (array $data, array $record) {
+                        /** @var Server $server */
                         $server = Filament::getTenant();
-                        $provider = ModpackProvider::from($this->selectedProvider);
+
+                        $filters = $this->tableFilters;
+                        $providerFilter = $filters['provider'] ?? ModpackProvider::MODRINTH->value;
+
+                        // Extract value from filter array if needed
+                        $providerValue = is_array($providerFilter)
+                            ? ($providerFilter['value'] ?? ModpackProvider::MODRINTH->value)
+                            : $providerFilter;
+
+                        try {
+                            $provider = ModpackProvider::from($providerValue);
+                        } catch (\Exception $e) {
+                            $provider = ModpackProvider::MODRINTH;
+                        }
+
                         $installer = app(ModpackInstaller::class);
 
                         $success = $installer->install(
@@ -162,12 +217,6 @@ class ModpackBrowser extends Page implements HasTable
                                 ->send();
                         }
                     }),
-
-                Action::make('details')
-                    ->icon('tabler-info-circle')
-                    ->color('info')
-                    ->url(fn(array $record) => $record['url'] ?? '#', shouldOpenInNewTab: true)
-                    ->hidden(fn(array $record) => empty($record['url'])),
             ]);
     }
 
@@ -176,19 +225,10 @@ class ModpackBrowser extends Page implements HasTable
         return $schema->components([
             Grid::make(1)
                 ->schema([
-                    Section::make('Provider Selection')
-                        ->description('Choose which platform to browse modpacks from')
+                    Section::make('Modpack Browser')
+                        ->description('Browse and install modpacks from various platforms. Use the filter above the table to select a provider.')
                         ->schema([
-                            Select::make('selectedProvider')
-                                ->label('Modpack Provider')
-                                ->options(
-                                    collect(ModpackProvider::cases())
-                                        ->mapWithKeys(fn($p) => [$p->value => $p->getDisplayName()])
-                                        ->toArray()
-                                )
-                                ->default(ModpackProvider::MODRINTH->value)
-                                ->live()
-                                ->afterStateUpdated(fn() => $this->resetTable()),
+                            EmbeddedTable::make(),
                         ]),
                 ]),
         ]);

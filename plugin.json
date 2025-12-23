@@ -1,7 +1,7 @@
 {
     "id": "minecraft-modpacks",
     "name": "Minecraft Modpacks",
-    "author": "timvida",
+    "author": "TimVida & Eranio",
     "version": "1.0.0",
     "description": "Browse and install Minecraft modpacks from multiple platforms including Modrinth, CurseForge, ATLauncher, Feed The Beast, Technic, and Voids Wrath",
     "category": "plugin",
@@ -9,9 +9,11 @@
     "update_url": null,
     "namespace": "TimVida\\MinecraftModpacks",
     "class": "MinecraftModpacksPlugin",
-    "panels": [
-        "server"
-    ],
-    "panel_version": "^1.0.0",
-    "composer_packages": null
+    "panels": null,
+    "panel_version": "1.0.0-beta30",
+    "composer_packages": null,
+    "meta": {
+        "status": "enabled",
+        "status_message": null
+    }
 }
