@@ -14,7 +14,7 @@ class TechnicProvider implements ModpackServiceInterface
     {
         try {
             // Technic requires a search query, use 'Technic' as default
-            $searchQuery = empty($query) ? 'Technic' : $query;
+            $searchQuery = empty($query) ? trans('minecraft-modpacks::modpacks.ui.providers.technic') : $query;
 
             $build = $this->getBuild();
 
@@ -25,7 +25,7 @@ class TechnicProvider implements ModpackServiceInterface
                 ]);
 
             if (!$response->successful()) {
-                Log::warning('Technic API request failed', ['status' => $response->status()]);
+                Log::warning(trans('minecraft-modpacks::modpacks.providers.technic.warning.log1'), ['status' => $response->status()]);
                 return ['items' => [], 'total' => 0];
             }
 
@@ -35,10 +35,10 @@ class TechnicProvider implements ModpackServiceInterface
             $items = collect($packs)->take($limit)->map(function ($pack) {
                 return [
                     'id' => $pack['slug'] ?? $pack['name'],
-                    'name' => $pack['name'] ?? 'Unknown',
+                    'name' => $pack['name'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
                     'summary' => $pack['description'] ?? '',
                     'icon' => $pack['iconUrl'] ?? null,
-                    'author' => 'Technic',
+                    'author' => trans('minecraft-modpacks::modpacks.ui.providers.technic'),
                     'downloads' => 0,
                     'updated_at' => null,
                 ];
@@ -49,7 +49,7 @@ class TechnicProvider implements ModpackServiceInterface
                 'total' => count($items),
             ];
         } catch (\Exception $e) {
-            Log::error('Error fetching Technic modpacks', ['error' => $e->getMessage()]);
+            Log::error(trans('minecraft-modpacks::modpacks.providers.technic.error.log1'), ['error' => $e->getMessage()]);
             return ['items' => [], 'total' => 0];
         }
     }
@@ -85,7 +85,7 @@ class TechnicProvider implements ModpackServiceInterface
                 return (string) ($data['build'] ?? '822');
             }
         } catch (\Exception $e) {
-            Log::error('Error fetching Technic build', ['error' => $e->getMessage()]);
+            Log::error(trans('minecraft-modpacks::modpacks.providers.technic.error.log2'), ['error' => $e->getMessage()]);
         }
 
         return '822'; // Fallback build number
@@ -113,20 +113,20 @@ class TechnicProvider implements ModpackServiceInterface
 
             return [
                 'id' => $modpackId,
-                'name' => $pack['displayName'] ?? $pack['name'] ?? 'Unknown',
+                'name' => $pack['displayName'] ?? $pack['name'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
                 'summary' => $pack['description'] ?? '',
                 'body' => $pack['description'] ?? '',
                 'icon' => $pack['icon']['url'] ?? null,
-                'author' => $pack['user'] ?? 'Technic',
+                'author' => $pack['user'] ?? trans('minecraft-modpacks::modpacks.ui.providers.technic'),
                 'downloads' => $pack['runs'] ?? 0,
                 'followers' => 0,
                 'published_at' => null,
                 'updated_at' => null,
                 'url' => $pack['platformUrl'] ?? "https://www.technicpack.net/modpack/{$modpackId}",
-                'version' => $pack['version'] ?? 'latest',
+                'version' => $pack['version'] ?? trans('minecraft-modpacks::modpacks.ui.common.latest'),
             ];
         } catch (\Exception $e) {
-            Log::error('Error fetching Technic details', ['error' => $e->getMessage()]);
+            Log::error(trans('minecraft-modpacks::modpacks.providers.technic.error.log3'), ['error' => $e->getMessage()]);
             return null;
         }
     }

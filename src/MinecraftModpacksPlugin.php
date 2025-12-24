@@ -43,20 +43,20 @@ class MinecraftModpacksPlugin implements HasPluginSettings, Plugin
     {
         return [
             TextInput::make('curseforge_api_key')
-                ->label('CurseForge API Key')
+                ->label(trans('minecraft-modpacks::modpacks.ui.plugin.curseforge_api_key'))
                 ->password()
                 ->revealable()
-                ->helperText('Required for CurseForge modpack browsing. Get your key at console.curseforge.com')
+                ->helperText(trans('minecraft-modpacks::modpacks.ui.plugin.curseforge_api_key_help'))
                 ->default(fn () => config('modpacks.curseforge_api_key', '')),
 
             TextInput::make('cache_duration')
-                ->label('Cache Duration (seconds)')
+                ->label(trans('minecraft-modpacks::modpacks.ui.plugin.cache_duration'))
                 ->numeric()
                 ->minValue(0)
                 ->default(fn () => config('modpacks.cache_duration', 1800)),
 
             TextInput::make('request_timeout')
-                ->label('API Request Timeout (seconds)')
+                ->label(trans('minecraft-modpacks::modpacks.ui.plugin.request_timeout'))
                 ->numeric()
                 ->minValue(1)
                 ->maxValue(30)
@@ -83,8 +83,8 @@ class MinecraftModpacksPlugin implements HasPluginSettings, Plugin
         $this->writeToEnvironment($envData);
 
         Notification::make()
-            ->title('Settings Updated')
-            ->body('Plugin settings have been saved successfully.')
+            ->title(trans('minecraft-modpacks::modpacks.ui.plugin.settings_updated'))
+            ->body(trans('minecraft-modpacks::modpacks.ui.plugin.settings_updated_message'))
             ->success()
             ->send();
     }

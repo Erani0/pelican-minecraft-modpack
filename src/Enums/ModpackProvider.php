@@ -14,12 +14,12 @@ enum ModpackProvider: string
     public function getDisplayName(): string
     {
         return match ($this) {
-            self::MODRINTH => 'Modrinth',
-            self::CURSEFORGE => 'CurseForge',
-            self::ATLAUNCHER => 'ATLauncher',
-            self::FEEDTHEBEAST => 'Feed The Beast',
-            self::TECHNIC => 'Technic',
-            self::VOIDSWRATH => 'Voids Wrath',
+            self::MODRINTH => trans('minecraft-modpacks::modpacks.ui.providers.modrinth'),
+            self::CURSEFORGE => trans('minecraft-modpacks::modpacks.ui.providers.curseforge'),
+            self::ATLAUNCHER => trans('minecraft-modpacks::modpacks.ui.providers.atlauncher'),
+            self::FEEDTHEBEAST => trans('minecraft-modpacks::modpacks.ui.providers.feedthebeast'),
+            self::TECHNIC => trans('minecraft-modpacks::modpacks.ui.providers.technic'),
+            self::VOIDSWRATH => trans('minecraft-modpacks::modpacks.ui.providers.voidswrath'),
         };
     }
 
