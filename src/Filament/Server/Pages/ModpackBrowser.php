@@ -44,7 +44,7 @@ class ModpackBrowser extends Page implements HasTable
 
     public function getTitle(): string
     {
-        return trans('minecraft-modpacks::modpacks.ui.browser.title');
+        return 'Modpack Browser';
     }
 
     public function table(Table $table): Table
@@ -80,7 +80,7 @@ class ModpackBrowser extends Page implements HasTable
             ->paginated([20])
             ->filters([
                 SelectFilter::make('provider')
-                    ->label(trans('minecraft-modpacks::modpacks.ui.browser.provider'))
+                    ->label('Provider')
                     ->options(
                         collect(ModpackProvider::cases())
                             ->mapWithKeys(fn($p) => [$p->value => $p->getDisplayName()])
@@ -112,7 +112,7 @@ class ModpackBrowser extends Page implements HasTable
 
                 TextColumn::make('updated_at')
                     ->toggleable()
-                    ->label(trans('minecraft-modpacks::modpacks.ui.browser.updated'))
+                    ->label('Updated')
                     ->formatStateUsing(fn($state) => $state ? Carbon::parse($state)->diffForHumans() : 'Unknown')
                     ->icon('tabler-clock'),
             ])
@@ -120,8 +120,8 @@ class ModpackBrowser extends Page implements HasTable
                 Action::make('install')
                     ->icon('tabler-download')
                     ->color('success')
-                    ->modalHeading(fn(array $record) => trans('minecraft-modpacks::modpacks.ui.common.install') . ' ' . $record['name'])
-                    ->modalDescription(trans('minecraft-modpacks::modpacks.ui.browser.version'))
+                    ->modalHeading(fn(array $record) => 'Install ' . $record['name'])
+                    ->modalDescription('Select a version to install on this server')
                     ->form(function (array $record) use ($manager) {
                         $filters = $this->tableFilters;
                         $providerFilter = $filters['provider'] ?? ModpackProvider::MODRINTH->value;
@@ -143,7 +143,7 @@ class ModpackBrowser extends Page implements HasTable
                             return [
                                 TextEntry::make('no_versions')
                                     ->label('')
-                                    ->state(trans('minecraft-modpacks::modpacks.ui.browser.no_versions')),
+                                    ->state('No versions available for this modpack.'),
                             ];
                         }
 
@@ -153,7 +153,7 @@ class ModpackBrowser extends Page implements HasTable
 
                         return [
                             Radio::make('version_id')
-                                ->label(trans('minecraft-modpacks::modpacks.ui.browser.version'))
+                                ->label('Version')
                                 ->options($versionOptions)
                                 ->required()
                                 ->descriptions(
@@ -165,13 +165,13 @@ class ModpackBrowser extends Page implements HasTable
                                         if (!empty($version['published_at'])) {
                                             $info[] = Carbon::parse($version['published_at'])->format('M d, Y');
                                         }
-                                        return [$version['id'] => implode(' • ', $info)];
+                                        return [$version['id'] => implode(' â€¢ ', $info)];
                                     })->toArray()
                                 ),
 
                             Toggle::make('delete_existing')
-                                ->label(trans('minecraft-modpacks::modpacks.ui.browser.delete_existing'))
-                                ->helperText(trans('minecraft-modpacks::modpacks.ui.browser.delete_warning'))
+                                ->label('Delete existing server files')
+                                ->helperText('Warning: This will remove all current files from your server!')
                                 ->default(false),
                         ];
                     })
@@ -205,14 +205,14 @@ class ModpackBrowser extends Page implements HasTable
 
                         if ($success) {
                             Notification::make()
-                                ->title(trans('minecraft-modpacks::modpacks.ui.browser.installation_started'))
-                                ->body(trans('minecraft-modpacks::modpacks.ui.browser.installation_started_message'))
+                                ->title('Installation Started')
+                                ->body('The modpack is being downloaded to your server.')
                                 ->success()
                                 ->send();
                         } else {
                             Notification::make()
-                                ->title(trans('minecraft-modpacks::modpacks.ui.browser.installation_failed'))
-                                ->body(trans('minecraft-modpacks::modpacks.ui.browser.installation_failed_message'))
+                                ->title('Installation Failed')
+                                ->body('Could not start modpack installation. Check logs for details.')
                                 ->danger()
                                 ->send();
                         }
@@ -225,8 +225,8 @@ class ModpackBrowser extends Page implements HasTable
         return $schema->components([
             Grid::make(1)
                 ->schema([
-                    Section::make(trans('minecraft-modpacks::modpacks.ui.browser.title'))
-                        ->description(trans('minecraft-modpacks::modpacks.ui.browser.description'))
+                    Section::make('Modpack Browser')
+                        ->description('Browse and install modpacks from various platforms. Use the filter above the table to select a provider.')
                         ->schema([
                             EmbeddedTable::make(),
                         ]),
@@ -247,7 +247,7 @@ class ModpackBrowser extends Page implements HasTable
     {
         return [
             Action::make('refresh_cache')
-                ->label(trans('minecraft-modpacks::modpacks.ui.browser.clear_cache'))
+                ->label('Clear Cache')
                 ->icon('tabler-refresh')
                 ->color('gray')
                 ->action(function () {
@@ -255,8 +255,8 @@ class ModpackBrowser extends Page implements HasTable
                     $manager->clearCache();
 
                     Notification::make()
-                        ->title(trans('minecraft-modpacks::modpacks.ui.browser.cache_cleared'))
-                        ->body(trans('minecraft-modpacks::modpacks.ui.browser.cache_cleared_message'))
+                        ->title('Cache Cleared')
+                        ->body('Modpack cache has been cleared successfully.')
                         ->success()
                         ->send();
 

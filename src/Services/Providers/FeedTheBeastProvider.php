@@ -23,7 +23,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
                 ->get(self::API_BASE . $endpoint, $params);
 
             if (!$response->successful()) {
-                Log::warning(trans('minecraft-modpacks::modpacks.providers.feedthebeast.warning.log1'), ['status' => $response->status()]);
+                Log::warning('FTB API request failed', ['status' => $response->status()]);
                 return ['items' => [], 'total' => 0];
             }
 
@@ -43,7 +43,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
                         'name' => $details['name'],
                         'summary' => $details['summary'],
                         'icon' => $details['icon'],
-                        'author' => trans('minecraft-modpacks::modpacks.ui.providers.feedthebeast'),
+                        'author' => 'Feed The Beast',
                         'downloads' => 0,
                         'updated_at' => null,
                     ];
@@ -55,7 +55,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
                 'total' => count($items),
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.feedthebeast.error.log1'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching FTB modpacks', ['error' => $e->getMessage()]);
             return ['items' => [], 'total' => 0];
         }
     }
@@ -84,7 +84,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
                 ];
             })->values()->toArray();
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.feedthebeast.error.log2'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching FTB versions', ['error' => $e->getMessage()]);
             return [];
         }
     }
@@ -120,7 +120,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
                 'summary' => $pack['description'] ?? '',
                 'body' => $pack['description'] ?? '',
                 'icon' => $iconUrl,
-                'author' => trans('minecraft-modpacks::modpacks.ui.providers.feedthebeast'),
+                'author' => 'Feed The Beast',
                 'downloads' => 0,
                 'followers' => 0,
                 'published_at' => null,
@@ -128,7 +128,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
                 'url' => "https://feed-the-beast.com/modpacks/{$pack['id']}",
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.feedthebeast.error.log3'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching FTB details', ['error' => $e->getMessage()]);
             return null;
         }
     }

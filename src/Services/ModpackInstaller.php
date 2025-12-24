@@ -77,7 +77,7 @@ class ModpackInstaller
                     $installerEgg
                 );
             }
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log1'), [
+            Log::warning('Installer egg not found, falling back to direct modpack download', [
                 'server' => $server->id,
                 'provider' => $provider->value,
             ]);
@@ -86,7 +86,7 @@ class ModpackInstaller
             $this->currentDownloadUrl = $downloadInfo['url'] ?? null;
 
             if (!$downloadInfo) {
-                Log::error(trans('minecraft-modpacks::modpacks.installer.error.log1'), [
+                Log::error('Failed to get download info for modpack', [
                     'provider' => $provider->value,
                     'modpackId' => $modpackId,
                     'versionId' => $versionId,
@@ -95,7 +95,7 @@ class ModpackInstaller
             }
 
             if (empty($downloadInfo['url'])) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log2'), [
+                Log::warning('Modpack requires launcher installation', [
                     'provider' => $provider->value,
                     'modpackId' => $modpackId,
                 ]);
@@ -118,7 +118,7 @@ class ModpackInstaller
             $this->processModpackArchive($server, $filename);
             }
 
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log1'), [
+            Log::info('Modpack installation completed', [
                 'server' => $server->id,
                 'provider' => $provider->value,
                 'modpack' => $modpackId,
@@ -127,7 +127,7 @@ class ModpackInstaller
 
             return true;
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log2'), [
+            Log::error('Failed to install modpack', [
                 'error' => $e->getMessage(),
                 'server' => $server->id,
                 'provider' => $provider->value,
@@ -193,7 +193,7 @@ class ModpackInstaller
                 'egg_id' => $targetEgg->id,
             ]);
 
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log2'), [
+            Log::info('Modpack installation scheduled via installer egg', [
                 'server' => $server->id,
                 'provider' => $provider->value,
                 'modpack' => $modpackId,
@@ -204,7 +204,7 @@ class ModpackInstaller
 
             return true;
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log3'), [
+            Log::error('Failed to install modpack via installer egg', [
                 'error' => $e->getMessage(),
                 'server' => $server->id,
                 'provider' => $provider->value,
@@ -255,7 +255,7 @@ class ModpackInstaller
             sleep(1);
         }
 
-        Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log3'));
+        Log::warning('Timed out waiting for server to go offline');
     }
 
     /**
@@ -270,7 +270,7 @@ class ModpackInstaller
             $files = $this->fileRepository->setServer($server)->getDirectory('/');
 
             if (isset($files['error'])) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log4'), ['error' => $files['error']]);
+                Log::warning('Could not list server files for deletion', ['error' => $files['error']]);
                 return;
             }
 
@@ -281,10 +281,10 @@ class ModpackInstaller
 
             if (!empty($fileNames)) {
                 $this->fileRepository->deleteFiles('/', $fileNames);
-                Log::info(trans('minecraft-modpacks::modpacks.installer.info.log3'), ['count' => count($fileNames)]);
+                Log::info('Deleted server files before modpack installation', ['count' => count($fileNames)]);
             }
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log4'), ['error' => $e->getMessage()]);
+            Log::error('Error deleting server files', ['error' => $e->getMessage()]);
         }
     }
 
@@ -350,7 +350,7 @@ class ModpackInstaller
     private function processModpackArchive(Server $server, string $filename): void
     {
         try {
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log4'), [
+            Log::info('Processing modpack archive', [
                 'filename' => $filename,
                 'server' => $server->id,
             ]);
@@ -364,9 +364,9 @@ class ModpackInstaller
             try {
                 $rootFiles = $this->fileRepository->setServer($server)->getDirectory('/');
                 $fileNames = collect($rootFiles)->pluck('name')->filter(fn($n) => !in_array($n, ['.', '..']))->toArray();
-                Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log1'), ['files' => $fileNames]);
+                Log::debug('Files in root after extraction', ['files' => $fileNames]);
             } catch (\Exception $e) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log5'), ['error' => $e->getMessage()]);
+                Log::warning('Could not list root directory', ['error' => $e->getMessage()]);
             }
 
             $packDir = pathinfo($filename, PATHINFO_FILENAME);
@@ -383,7 +383,7 @@ class ModpackInstaller
                 $items = $this->fileRepository->setServer($server)->getDirectory($overridesPath);
 
                 if (!isset($items['error']) && !empty($items)) {
-                    Log::info(trans('minecraft-modpacks::modpacks.installer.info.log5'), [
+                    Log::info('Found overrides directory in modpack, copying to root', [
                         'path' => $overridesPath,
                     ]);
                     $this->copyOverridesToRoot($server, $overridesPath);
@@ -393,7 +393,7 @@ class ModpackInstaller
                     $items = $this->fileRepository->setServer($server)->getDirectory($overridesPath);
 
                     if (!isset($items['error']) && !empty($items)) {
-                        Log::info(trans('minecraft-modpacks::modpacks.installer.info.log6'), [
+                        Log::info('Found overrides directory in modpack, copying to root', [
                             'path' => $overridesPath,
                         ]);
                         $this->copyOverridesToRoot($server, $overridesPath);
@@ -403,11 +403,11 @@ class ModpackInstaller
 
                 // Clean up the extracted pack directory
                 try {
-                    Log::info(trans('minecraft-modpacks::modpacks.installer.info.log7'), ['directory' => $packDir]);
+                    Log::info('Cleaning up extracted modpack directory', ['directory' => $packDir]);
                     $this->fileRepository->deleteFiles('/', [$packDir]);
-                    Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log2'), ['directory' => $packDir]);
+                    Log::debug('Deleted extracted pack directory', ['directory' => $packDir]);
                 } catch (\Exception $e) {
-                    Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log6'), [
+                    Log::warning('Failed to delete extracted pack directory', [
                         'directory' => $packDir,
                         'error' => $e->getMessage(),
                     ]);
@@ -418,12 +418,12 @@ class ModpackInstaller
             $archiveFiles = array_unique([$filename, $archiveFilename]);
             $this->fileRepository->deleteFiles('/', $archiveFiles);
 
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log8'), [
+            Log::info('Modpack archive processed successfully', [
                 'filename' => $filename,
                 'server' => $server->id,
             ]);
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log5'), [
+            Log::error('Failed to process modpack archive', [
                 'filename' => $filename,
                 'error' => $e->getMessage(),
                 'server' => $server->id,
@@ -451,14 +451,14 @@ class ModpackInstaller
 
         $moved = $this->moveFileOrDirectory($server, '/' . $filename, '/' . $zipFilename);
         if ($moved) {
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log9'), [
+            Log::info('Renamed mrpack to zip for decompression', [
                 'from' => $filename,
                 'to' => $zipFilename,
             ]);
             return $zipFilename;
         }
 
-        Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log7'), [
+        Log::warning('Failed to rename mrpack for decompression, trying original filename', [
             'filename' => $filename,
         ]);
 
@@ -491,7 +491,7 @@ class ModpackInstaller
 
         $manifest = json_decode($manifestContent, true);
         if (!is_array($manifest) || empty($manifest['files'])) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log8'), [
+            Log::warning('Invalid CurseForge manifest, skipping mod downloads', [
                 'path' => $manifestPath,
             ]);
             return null;
@@ -501,7 +501,7 @@ class ModpackInstaller
 
         $apiKey = config('modpacks.curseforge_api_key');
         if (empty($apiKey)) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log9'));
+            Log::warning('CurseForge API key not configured, skipping mod downloads');
             return $this->buildOverridesPath($manifest, $baseDir);
         }
 
@@ -517,7 +517,7 @@ class ModpackInstaller
 
             $downloadUrl = $this->getCurseForgeDownloadUrl($projectId, $fileId);
             if (!$downloadUrl) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log10'), [
+                Log::warning('CurseForge file download URL not found', [
                     'project_id' => $projectId,
                     'file_id' => $fileId,
                 ]);
@@ -528,7 +528,7 @@ class ModpackInstaller
                 $this->fileRepository->pull($downloadUrl, '/mods');
                 $downloaded++;
             } catch (\Exception $e) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log11'), [
+                Log::warning('Failed to download CurseForge mod file', [
                     'project_id' => $projectId,
                     'file_id' => $fileId,
                     'error' => $e->getMessage(),
@@ -536,7 +536,7 @@ class ModpackInstaller
             }
         }
 
-        Log::info(trans('minecraft-modpacks::modpacks.installer.info.log10'), [
+        Log::info('CurseForge manifest processed', [
             'downloaded' => $downloaded,
             'manifest' => $manifestPath,
         ]);
@@ -599,7 +599,7 @@ class ModpackInstaller
             $data = $fallback->json();
             return $data['data']['downloadUrl'] ?? null;
         } catch (\Exception $e) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log12'), [
+            Log::warning('Error fetching CurseForge download URL', [
                 'project_id' => $projectId,
                 'file_id' => $fileId,
                 'error' => $e->getMessage(),
@@ -618,7 +618,7 @@ class ModpackInstaller
     private function processModrinthPack(Server $server, string $filename): void
     {
         try {
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log11'), [
+            Log::info('Processing Modrinth pack', [
                 'filename' => $filename,
                 'server' => $server->id,
             ]);
@@ -635,20 +635,20 @@ class ModpackInstaller
                 $indexPath = "/{$packDir}/modrinth.index.json";
                 $indexContent = $this->readFileFromDaemon($server, $indexPath);
                 $baseDir = "/{$packDir}";
-                Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log3'), ['path' => $indexPath]);
+                Log::debug('Checking for modrinth.index.json in subdirectory', ['path' => $indexPath]);
             } else {
-                Log::info(trans('minecraft-modpacks::modpacks.installer.info.log12'));
+                Log::info('Found modrinth.index.json in root directory');
             }
 
             if (!$indexContent) {
                 $indexContent = $this->readModrinthIndexFromArchive();
                 if ($indexContent) {
-                    Log::info(trans('minecraft-modpacks::modpacks.installer.info.log13'));
+                    Log::info('Read modrinth.index.json from archive fallback');
                 }
             }
 
             if (!$indexContent) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log13'));
+                Log::warning('modrinth.index.json not found in root or subdirectory, skipping mod downloads');
             } else {
                 $index = json_decode($indexContent, true);
 
@@ -656,7 +656,7 @@ class ModpackInstaller
                     $this->installModrinthServerLoader($server, $index);
                     $this->clearModsDirectory($server);
 
-                    Log::info(trans('minecraft-modpacks::modpacks.installer.info.log14'), [
+                    Log::info('Downloading Modrinth pack files', [
                         'file_count' => count($index['files']),
                         'base_directory' => $baseDir,
                     ]);
@@ -672,9 +672,9 @@ class ModpackInstaller
 
                         try {
                             $this->fileRepository->pull($downloadUrl, dirname($targetPath));
-                            Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log4'), ['path' => $file['path']]);
+                            Log::debug('Downloaded mod file', ['path' => $file['path']]);
                         } catch (\Exception $e) {
-                            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log14'), [
+                            Log::warning('Failed to download mod file', [
                                 'path' => $file['path'],
                                 'error' => $e->getMessage(),
                             ]);
@@ -701,31 +701,31 @@ class ModpackInstaller
             try {
                 if ($baseDir === '/') {
                     $this->fileRepository->deleteFiles('/', ['modrinth.index.json']);
-                    Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log5'));
+                    Log::debug('Deleted modrinth.index.json from root');
                 }
             } catch (\Exception $e) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log15'), ['error' => $e->getMessage()]);
+                Log::warning('Failed to delete modrinth.index.json', ['error' => $e->getMessage()]);
             }
 
             // Clean up the extracted pack directory if it exists
             if (isset($packDir) && $packDir) {
                 try {
-                    Log::info(trans('minecraft-modpacks::modpacks.installer.info.log15'), ['directory' => $packDir]);
+                    Log::info('Cleaning up extracted modpack directory', ['directory' => $packDir]);
                     $this->fileRepository->deleteFiles('/', [$packDir]);
-                    Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log6'), ['directory' => $packDir]);
+                    Log::debug('Deleted extracted pack directory', ['directory' => $packDir]);
                 } catch (\Exception $e) {
-                    Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log16'), [
+                    Log::warning('Failed to delete extracted pack directory', [
                         'directory' => $packDir,
                         'error' => $e->getMessage(),
                     ]);
                 }
             }
 
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log16'), [
+            Log::info('Modrinth pack processed successfully', [
                 'server' => $server->id,
             ]);
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log6'), [
+            Log::error('Failed to process Modrinth pack', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'server' => $server->id,
@@ -759,14 +759,14 @@ class ModpackInstaller
                 return $response->body();
             }
 
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log17'), [
+            Log::warning('Failed to read file from daemon', [
                 'path' => $path,
                 'status' => $response->status(),
             ]);
 
             return null;
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log7'), [
+            Log::error('Error reading file from daemon', [
                 'path' => $path,
                 'error' => $e->getMessage(),
             ]);
@@ -797,7 +797,7 @@ class ModpackInstaller
                 ->get($this->currentDownloadUrl);
 
             if (!$response->successful()) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log18'), [
+                Log::warning('Failed to download modrinth archive for fallback', [
                     'status' => $response->status(),
                 ]);
                 return null;
@@ -805,7 +805,7 @@ class ModpackInstaller
 
             $zip = new \ZipArchive();
             if ($zip->open($tmpFile) !== true) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log19'));
+                Log::warning('Failed to open modrinth archive for fallback');
                 return null;
             }
 
@@ -814,7 +814,7 @@ class ModpackInstaller
 
             return is_string($indexContent) ? $indexContent : null;
         } catch (\Exception $e) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log20'), [
+            Log::warning('Error reading modrinth archive fallback', [
                 'error' => $e->getMessage(),
             ]);
             return null;
@@ -838,7 +838,7 @@ class ModpackInstaller
         }
 
         if (in_array($loader['type'], ['forge', 'neoforge'], true)) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log21'), $loader);
+            Log::warning('Forge/NeoForge auto-install is not supported yet', $loader);
             return;
         }
 
@@ -849,14 +849,14 @@ class ModpackInstaller
             try {
                 $repository->createDirectory($tempDir);
             } catch (\Throwable $e) {
-                Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log7'), ['error' => $e->getMessage()]);
+                Log::debug('Failed to create loader temp directory', ['error' => $e->getMessage()]);
             }
 
             $repository->pull($loader['url'], $tempDir);
             $serverJar = $this->findJarInDirectory($server, $tempDir);
 
             if (!$serverJar) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log22'), $loader);
+                Log::warning('Failed to locate downloaded server jar', $loader);
                 return;
             }
 
@@ -865,12 +865,12 @@ class ModpackInstaller
             $repository->deleteFiles('/', [ltrim($tempDir, '/')]);
             $this->writeRunScripts($server, 'server.jar');
 
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log17'), [
+            Log::info('Installed Modrinth server loader', [
                 'type' => $loader['type'],
                 'server_jar' => $serverJar,
             ]);
         } catch (\Exception $e) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log23'), [
+            Log::warning('Failed to install Modrinth server loader', [
                 'error' => $e->getMessage(),
                 'type' => $loader['type'],
             ]);
@@ -955,7 +955,7 @@ class ModpackInstaller
                 }
             }
         } catch (\Exception $e) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log24'), [
+            Log::warning('Failed to list directory for server jar lookup', [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -979,7 +979,7 @@ class ModpackInstaller
                 ->values()
                 ->toArray();
         } catch (\Exception $e) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log25'), ['error' => $e->getMessage()]);
+            Log::warning('Failed to list root jars', ['error' => $e->getMessage()]);
             return [];
         }
     }
@@ -1013,7 +1013,7 @@ class ModpackInstaller
             }
         }
 
-        Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log26'), [
+        Log::warning('Could not determine server jar from new files', [
             'new_jars' => $newJars,
         ]);
 
@@ -1041,7 +1041,7 @@ class ModpackInstaller
                 }
             }
         } catch (\Exception $e) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log27'), [
+            Log::warning('Failed to list loader temp directory', [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -1066,10 +1066,10 @@ class ModpackInstaller
 
             if (!empty($fileNames)) {
                 $this->fileRepository->deleteFiles('/mods', $fileNames);
-                Log::info(trans('minecraft-modpacks::modpacks.installer.info.log18'), ['count' => count($fileNames)]);
+                Log::info('Cleared existing mods before installation', ['count' => count($fileNames)]);
             }
         } catch (\Exception $e) {
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log28'), ['error' => $e->getMessage()]);
+            Log::warning('Failed to clear mods directory', ['error' => $e->getMessage()]);
         }
     }
 
@@ -1137,7 +1137,7 @@ BAT;
                 $repository->putContent(...$args);
                 return;
             } catch (\Throwable $e) {
-                Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log8'), [
+                Log::debug('Failed to write file via repository', [
                     'path' => $path,
                     'error' => $e->getMessage(),
                 ]);
@@ -1180,7 +1180,7 @@ BAT;
                     }
                 }
             } catch (\Throwable $e) {
-                Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log9'), [
+                Log::debug('Repository file read failed', [
                     'method' => $method,
                     'path' => $path,
                     'error' => $e->getMessage(),
@@ -1189,7 +1189,7 @@ BAT;
             }
         }
 
-        Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log10'), [
+        Log::debug('Repository does not provide readable file content', [
             'path' => $path,
             'methods' => get_class_methods($repository),
         ]);
@@ -1292,14 +1292,14 @@ BAT;
                 ]);
 
             if ($response->successful()) {
-                Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log11'), [
+                Log::debug('File/directory moved successfully', [
                     'from' => $from,
                     'to' => $to,
                 ]);
                 return true;
             }
 
-            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log29'), [
+            Log::warning('Failed to move file/directory', [
                 'from' => $from,
                 'to' => $to,
                 'status' => $response->status(),
@@ -1308,7 +1308,7 @@ BAT;
 
             return false;
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log8'), [
+            Log::error('Error moving file/directory', [
                 'from' => $from,
                 'to' => $to,
                 'error' => $e->getMessage(),
@@ -1369,14 +1369,14 @@ BAT;
         foreach ($attempts as $attempt) {
             try {
                 if ($attempt()) {
-                    Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log12'), [
+                    Log::debug('File/directory moved using repository', [
                         'from' => $from,
                         'to' => $to,
                     ]);
                     return true;
                 }
             } catch (\Throwable $e) {
-                Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.log13'), [
+                Log::debug('Repository rename failed', [
                     'from' => $from,
                     'to' => $to,
                     'error' => $e->getMessage(),
@@ -1397,13 +1397,13 @@ BAT;
     private function copyOverridesToRoot(Server $server, string $overridesPath): void
     {
         try {
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log19'), ['path' => $overridesPath]);
+            Log::info('Copying overrides to server root', ['path' => $overridesPath]);
 
             // List all files/folders in the overrides directory
             $items = $this->fileRepository->setServer($server)->getDirectory($overridesPath);
 
             if (isset($items['error']) || empty($items)) {
-                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log30'), [
+                Log::warning('Overrides directory is empty or could not be read', [
                     'path' => $overridesPath,
                 ]);
                 return;
@@ -1421,9 +1421,9 @@ BAT;
                 $this->moveFileOrDirectory($server, $sourcePath, $targetPath);
             }
 
-            Log::info(trans('minecraft-modpacks::modpacks.installer.info.log20'));
+            Log::info('Successfully copied all overrides to server root');
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.installer.error.log9'), [
+            Log::error('Failed to copy overrides to root', [
                 'path' => $overridesPath,
                 'error' => $e->getMessage(),
             ]);

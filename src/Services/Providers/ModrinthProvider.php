@@ -27,7 +27,7 @@ class ModrinthProvider implements ModpackServiceInterface
                 ->get(self::API_BASE . '/search', $params);
 
             if (!$response->successful()) {
-                Log::warning(trans('minecraft-modpacks::modpacks.providers.modrinth.warning.log1'), ['status' => $response->status()]);
+                Log::warning('Modrinth API request failed', ['status' => $response->status()]);
                 return ['items' => [], 'total' => 0];
             }
 
@@ -38,7 +38,7 @@ class ModrinthProvider implements ModpackServiceInterface
                     'name' => $pack['title'],
                     'summary' => $pack['description'] ?? '',
                     'icon' => $pack['icon_url'] ?? null,
-                    'author' => $pack['author'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
+                    'author' => $pack['author'] ?? 'Unknown',
                     'downloads' => $pack['downloads'] ?? 0,
                     'updated_at' => $pack['date_modified'] ?? null,
                 ];
@@ -49,7 +49,7 @@ class ModrinthProvider implements ModpackServiceInterface
                 'total' => $data['total_hits'] ?? 0,
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.modrinth.error.log1'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching Modrinth modpacks', ['error' => $e->getMessage()]);
             return ['items' => [], 'total' => 0];
         }
     }
@@ -77,7 +77,7 @@ class ModrinthProvider implements ModpackServiceInterface
                 ];
             })->toArray();
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.modrinth.error.log2'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching Modrinth versions', ['error' => $e->getMessage()]);
             return [];
         }
     }
@@ -100,7 +100,7 @@ class ModrinthProvider implements ModpackServiceInterface
                 'summary' => $pack['description'] ?? '',
                 'body' => $pack['body'] ?? '',
                 'icon' => $pack['icon_url'] ?? null,
-                'author' => $pack['team'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
+                'author' => $pack['team'] ?? 'Unknown',
                 'downloads' => $pack['downloads'] ?? 0,
                 'followers' => $pack['followers'] ?? 0,
                 'published_at' => $pack['published'] ?? null,
@@ -108,7 +108,7 @@ class ModrinthProvider implements ModpackServiceInterface
                 'url' => "https://modrinth.com/modpack/{$pack['slug']}",
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.modrinth.error.log3'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching Modrinth details', ['error' => $e->getMessage()]);
             return null;
         }
     }
@@ -139,7 +139,7 @@ class ModrinthProvider implements ModpackServiceInterface
                 'hash' => $primaryFile['hashes']['sha1'] ?? null,
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.modrinth.error.log4'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching Modrinth download info', ['error' => $e->getMessage()]);
             return null;
         }
     }

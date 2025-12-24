@@ -17,7 +17,7 @@ class CurseForgeProvider implements ModpackServiceInterface
         $apiKey = config('modpacks.curseforge_api_key');
 
         if (empty($apiKey)) {
-            Log::warning(trans('minecraft-modpacks::modpacks.providers.curseforge.warning.log1'));
+            Log::warning('CurseForge API key not configured - requests will fail');
         }
 
         return [
@@ -35,7 +35,7 @@ class CurseForgeProvider implements ModpackServiceInterface
     public function fetchModpacks(?string $query = null, int $limit = 20, int $offset = 0): array
     {
         if (!$this->hasApiKey()) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.curseforge.error.log1'));
+            Log::error('CurseForge API key is required but not configured');
             return ['items' => [], 'total' => 0];
         }
 
@@ -58,7 +58,7 @@ class CurseForgeProvider implements ModpackServiceInterface
                 ->get(self::API_BASE . '/mods/search', $params);
 
             if (!$response->successful()) {
-                Log::warning(trans('minecraft-modpacks::modpacks.providers.curseforge.warning.log2'), ['status' => $response->status()]);
+                Log::warning('CurseForge API request failed', ['status' => $response->status()]);
                 return ['items' => [], 'total' => 0];
             }
 
@@ -69,7 +69,7 @@ class CurseForgeProvider implements ModpackServiceInterface
                     'name' => $pack['name'],
                     'summary' => $pack['summary'] ?? '',
                     'icon' => $pack['logo']['thumbnailUrl'] ?? null,
-                    'author' => collect($pack['authors'] ?? [])->first()['name'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
+                    'author' => collect($pack['authors'] ?? [])->first()['name'] ?? 'Unknown',
                     'downloads' => $pack['downloadCount'] ?? 0,
                     'updated_at' => $pack['dateModified'] ?? null,
                 ];
@@ -83,7 +83,7 @@ class CurseForgeProvider implements ModpackServiceInterface
                 'total' => min($total, 10000), // CurseForge has a 10k limit
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.curseforge.error.log2'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching CurseForge modpacks', ['error' => $e->getMessage()]);
             return ['items' => [], 'total' => 0];
         }
     }
@@ -117,7 +117,7 @@ class CurseForgeProvider implements ModpackServiceInterface
                 ];
             })->toArray();
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.curseforge.error.log3'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching CurseForge versions', ['error' => $e->getMessage()]);
             return [];
         }
     }
@@ -150,7 +150,7 @@ class CurseForgeProvider implements ModpackServiceInterface
                 'summary' => $pack['summary'] ?? '',
                 'body' => $pack['description'] ?? '',
                 'icon' => $pack['logo']['thumbnailUrl'] ?? null,
-                'author' => collect($pack['authors'] ?? [])->first()['name'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
+                'author' => collect($pack['authors'] ?? [])->first()['name'] ?? 'Unknown',
                 'downloads' => $pack['downloadCount'] ?? 0,
                 'followers' => 0,
                 'published_at' => $pack['dateCreated'] ?? null,
@@ -158,7 +158,7 @@ class CurseForgeProvider implements ModpackServiceInterface
                 'url' => $pack['links']['websiteUrl'] ?? '',
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.curseforge.error.log4'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching CurseForge details', ['error' => $e->getMessage()]);
             return null;
         }
     }
@@ -192,7 +192,7 @@ class CurseForgeProvider implements ModpackServiceInterface
                 'hash' => null,
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.curseforge.error.log5'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching CurseForge download info', ['error' => $e->getMessage()]);
             return null;
         }
     }

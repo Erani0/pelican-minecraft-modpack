@@ -18,14 +18,14 @@ class VoidsWrathProvider implements ModpackServiceInterface
                 ->get(self::JSON_URL);
 
             if (!$response->successful()) {
-                Log::warning(trans('minecraft-modpacks::modpacks.providers.voidswrath.warning.log1'), ['status' => $response->status()]);
+                Log::warning('VoidsWrath JSON request failed', ['status' => $response->status()]);
                 return ['items' => [], 'total' => 0];
             }
 
             $packs = $response->json();
 
             if (!is_array($packs)) {
-                Log::error(trans('minecraft-modpacks::modpacks.providers.voidswrath.error.log1'));
+                Log::error('VoidsWrath response is not an array');
                 return ['items' => [], 'total' => 0];
             }
 
@@ -33,10 +33,10 @@ class VoidsWrathProvider implements ModpackServiceInterface
             $allItems = collect($packs)->map(function ($pack) {
                 return [
                     'id' => (string) ($pack['id'] ?? ''),
-                    'name' => $pack['displayName'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
+                    'name' => $pack['displayName'] ?? 'Unknown',
                     'summary' => $pack['description'] ?? '',
                     'icon' => $pack['logo'] ?? null,
-                    'author' => trans('minecraft-modpacks::modpacks.ui.providers.voidswrath'),
+                    'author' => 'Voids Wrath',
                     'downloads' => 0,
                     'updated_at' => null,
                 ];
@@ -52,7 +52,7 @@ class VoidsWrathProvider implements ModpackServiceInterface
                 'total' => $total,
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.voidswrath.error.log2'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching VoidsWrath modpacks', ['error' => $e->getMessage()]);
             return ['items' => [], 'total' => 0];
         }
     }
@@ -62,9 +62,9 @@ class VoidsWrathProvider implements ModpackServiceInterface
         // VoidsWrath only has latest version
         return [
             [
-                'id' => trans('minecraft-modpacks::modpacks.ui.common.latest'),
-                'name' => trans('minecraft-modpacks::modpacks.ui.common.latest'),
-                'version_number' => trans('minecraft-modpacks::modpacks.ui.common.latest'),
+                'id' => 'latest',
+                'name' => 'Latest',
+                'version_number' => 'latest',
                 'published_at' => null,
                 'downloads' => 0,
                 'changelog' => '',
@@ -91,17 +91,17 @@ class VoidsWrathProvider implements ModpackServiceInterface
             $pack = collect($packs)->firstWhere('id', (int) $modpackId);
 
             if (!$pack) {
-                Log::warning(trans('minecraft-modpacks::modpacks.providers.voidswrath.warning.log2'), ['id' => $modpackId]);
+                Log::warning('VoidsWrath modpack not found', ['id' => $modpackId]);
                 return null;
             }
 
             return [
                 'id' => (string) $pack['id'],
-                'name' => $pack['displayName'] ?? trans('minecraft-modpacks::modpacks.ui.providers.unknown'),
+                'name' => $pack['displayName'] ?? 'Unknown',
                 'summary' => $pack['description'] ?? '',
                 'body' => $pack['description'] ?? '',
                 'icon' => $pack['logo'] ?? null,
-                'author' => trans('minecraft-modpacks::modpacks.ui.providers.voidswrath'),
+                'author' => 'Voids Wrath',
                 'downloads' => 0,
                 'followers' => 0,
                 'published_at' => null,
@@ -109,7 +109,7 @@ class VoidsWrathProvider implements ModpackServiceInterface
                 'url' => $pack['platformUrl'] ?? 'https://www.voidswrath.com/',
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.voidswrath.error.log3'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching VoidsWrath details', ['error' => $e->getMessage()]);
             return null;
         }
     }
@@ -143,7 +143,7 @@ class VoidsWrathProvider implements ModpackServiceInterface
                 'hash' => null,
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.voidswrath.error.log4'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching VoidsWrath download info', ['error' => $e->getMessage()]);
             return null;
         }
     }

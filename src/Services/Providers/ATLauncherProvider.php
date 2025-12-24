@@ -26,7 +26,7 @@ class ATLauncherProvider implements ModpackServiceInterface
                 ->post(self::API_BASE . '/graphql', $this->buildGraphQLQuery($graphQuery));
 
             if (!$response->successful()) {
-                Log::warning(trans('minecraft-modpacks::modpacks.providers.atlauncher.warning.log1'), ['status' => $response->status()]);
+                Log::warning('ATLauncher API request failed', ['status' => $response->status()]);
                 return ['items' => [], 'total' => 0];
             }
 
@@ -40,7 +40,7 @@ class ATLauncherProvider implements ModpackServiceInterface
                     'name' => $pack['name'],
                     'summary' => $pack['description'] ?? '',
                     'icon' => 'https://cdn.atlcdn.net/images/packs/' . strtolower($pack['safeName']) . '.png',
-                    'author' => trans('minecraft-modpacks::modpacks.ui.providers.atlauncher'),
+                    'author' => 'ATLauncher',
                     'downloads' => 0,
                     'updated_at' => null,
                 ];
@@ -51,7 +51,7 @@ class ATLauncherProvider implements ModpackServiceInterface
                 'total' => count($items),
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.atlauncher.error.log1'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching ATLauncher modpacks', ['error' => $e->getMessage()]);
             return ['items' => [], 'total' => 0];
         }
     }
@@ -82,7 +82,7 @@ class ATLauncherProvider implements ModpackServiceInterface
                 ];
             })->toArray();
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.atlauncher.error.log2'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching ATLauncher versions', ['error' => $e->getMessage()]);
             return [];
         }
     }
@@ -112,7 +112,7 @@ class ATLauncherProvider implements ModpackServiceInterface
                 'summary' => $pack['description'] ?? '',
                 'body' => $pack['description'] ?? '',
                 'icon' => 'https://cdn.atlcdn.net/images/packs/' . strtolower($pack['safeName']) . '.png',
-                'author' => trans('minecraft-modpacks::modpacks.ui.providers.atlauncher'),
+                'author' => 'ATLauncher',
                 'downloads' => 0,
                 'followers' => 0,
                 'published_at' => null,
@@ -120,7 +120,7 @@ class ATLauncherProvider implements ModpackServiceInterface
                 'url' => $pack['websiteUrl'] ?? "https://atlauncher.com/pack/{$pack['safeName']}",
             ];
         } catch (\Exception $e) {
-            Log::error(trans('minecraft-modpacks::modpacks.providers.atlauncher.error.log3'), ['error' => $e->getMessage()]);
+            Log::error('Error fetching ATLauncher details', ['error' => $e->getMessage()]);
             return null;
         }
     }
