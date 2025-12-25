@@ -26,6 +26,7 @@ Browse and install modpacks from **6 different platforms**:
 - 🔄 **Provider Filtering** - Switch between platforms seamlessly
 - 🗑️ **Safe Installation** - Optional server file cleanup before installation
 - 🌐 **Multi-Language Support (WIP)** - 23 languages: DE, EN, CS, DA, ES, FR, HU, ID, IT, NL, NO, PL, PT, RO, SK, SR, SV, TR, Pirate
+- 🔐 **Feature-Based Access Control** - Restrict modpack access using Egg features
 
 ## 📋 Requirements
 
@@ -102,6 +103,22 @@ MODPACKS_REQUEST_TIMEOUT=10
 # Items per page (default: 20)
 MODPACKS_PER_PAGE=20
 ```
+
+#### Setup Instructions
+
+1. **Go to Admin Panel:**
+   - Navigate to **Admin** → **Eggs**
+   - Click on the Egg you want to enable Modpacks for
+
+2. **Add the Feature:**
+   - Scroll to the **Features** field
+   - Enter: `modpacks`
+   - If the egg already has other features, you can add it like:
+     ```
+     modpacks,other_feature,another_feature
+     ```
+
+3. **Save the Egg**
 
 ## 📖 Usage
 
@@ -180,6 +197,7 @@ minecraft-modpacks/
     ├── Services/
     │   ├── ModpackManager.php           # Central manager
     │   ├── ModpackInstaller.php         # Installation handler
+    │   ├── ModpacksService.php          # Access control service
     │   └── Providers/
     │       ├── ModrinthProvider.php
     │       ├── CurseForgeProvider.php
@@ -199,6 +217,7 @@ minecraft-modpacks/
 - **Centralized caching**: `ModpackManager` handles caching with MD5-based keys
 - **Separation of concerns**: Each provider handles its own API integration
 - **Filament integration**: Modern UI built with Filament components
+- **Access control**: Feature-based access system using Egg features
 
 ### Adding a New Provider
 
@@ -208,6 +227,13 @@ minecraft-modpacks/
 4. Implement all required methods: `fetchModpacks()`, `fetchVersions()`, `fetchDetails()`, `fetchDownloadInfo()`
 
 ## 🐛 Troubleshooting
+
+### Modpack Browser Not Visible
+
+- **Check egg feature**: Ensure your server's egg has `modpacks` feature in the Features field
+- **Verify feature format**: Feature must be `modpacks` (case-sensitive)
+- **Clear cache**: Run `php artisan config:cache` and `php artisan view:clear`
+- **Check logs**: Review Pelican logs for errors at `/var/www/pelican/storage/logs/`
 
 ### Modpacks Not Loading
 
