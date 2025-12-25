@@ -14,7 +14,7 @@ class VoidsWrathProvider implements ModpackServiceInterface
     public function fetchModpacks(?string $query = null, int $limit = 20, int $offset = 0): array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::JSON_URL);
 
             if (!$response->successful()) {
@@ -75,7 +75,7 @@ class VoidsWrathProvider implements ModpackServiceInterface
     public function fetchDetails(string $modpackId): ?array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::JSON_URL);
 
             if (!$response->successful()) {
@@ -117,7 +117,7 @@ class VoidsWrathProvider implements ModpackServiceInterface
     public function fetchDownloadInfo(string $modpackId, string $versionId): ?array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::JSON_URL);
 
             if (!$response->successful()) {

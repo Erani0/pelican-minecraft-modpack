@@ -19,7 +19,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
 
             $params = empty($query) ? [] : ['term' => $query];
 
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . $endpoint, $params);
 
             if (!$response->successful()) {
@@ -63,7 +63,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
     public function fetchVersions(string $modpackId): array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/{$modpackId}");
 
             if (!$response->successful()) {
@@ -92,7 +92,7 @@ class FeedTheBeastProvider implements ModpackServiceInterface
     public function fetchDetails(string $modpackId): ?array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/{$modpackId}");
 
             if (!$response->successful()) {

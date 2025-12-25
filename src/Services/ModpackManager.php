@@ -46,7 +46,7 @@ class ModpackManager
     ): array {
         $cacheKey = $this->buildCacheKey('search', $provider, $query, $page, $perPage);
 
-        return Cache::remember($cacheKey, config('modpacks.cache_duration', 1800), function () use ($provider, $query, $page, $perPage) {
+        return Cache::remember($cacheKey, config('minecraft-modpacks.cache_duration', 1800), function () use ($provider, $query, $page, $perPage) {
             $offset = ($page - 1) * $perPage;
             $service = $this->getProvider($provider);
 
@@ -58,7 +58,7 @@ class ModpackManager
     {
         $cacheKey = $this->buildCacheKey('versions', $provider, $modpackId);
 
-        return Cache::remember($cacheKey, config('modpacks.cache_duration', 1800), function () use ($provider, $modpackId) {
+        return Cache::remember($cacheKey, config('minecraft-modpacks.cache_duration', 1800), function () use ($provider, $modpackId) {
             $service = $this->getProvider($provider);
 
             return $service->fetchVersions($modpackId);
@@ -69,7 +69,7 @@ class ModpackManager
     {
         $cacheKey = $this->buildCacheKey('details', $provider, $modpackId);
 
-        return Cache::remember($cacheKey, config('modpacks.cache_duration', 1800), function () use ($provider, $modpackId) {
+        return Cache::remember($cacheKey, config('minecraft-modpacks.cache_duration', 1800), function () use ($provider, $modpackId) {
             $service = $this->getProvider($provider);
 
             return $service->fetchDetails($modpackId);
@@ -80,7 +80,7 @@ class ModpackManager
     {
         $cacheKey = $this->buildCacheKey('download', $provider, $modpackId, $versionId);
 
-        return Cache::remember($cacheKey, config('modpacks.cache_duration', 1800), function () use ($provider, $modpackId, $versionId) {
+        return Cache::remember($cacheKey, config('minecraft-modpacks.cache_duration', 1800), function () use ($provider, $modpackId, $versionId) {
             $service = $this->getProvider($provider);
 
             return $service->fetchDownloadInfo($modpackId, $versionId);

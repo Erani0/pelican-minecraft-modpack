@@ -47,20 +47,20 @@ class MinecraftModpacksPlugin implements HasPluginSettings, Plugin
                 ->password()
                 ->revealable()
                 ->helperText(trans('minecraft-modpacks::modpacks.ui.plugin.curseforge_api_key_help'))
-                ->default(fn () => config('modpacks.curseforge_api_key', '')),
+                ->default(fn () => config('minecraft-modpacks.curseforge_api_key', '')),
 
             TextInput::make('cache_duration')
                 ->label(trans('minecraft-modpacks::modpacks.ui.plugin.cache_duration'))
                 ->numeric()
                 ->minValue(0)
-                ->default(fn () => config('modpacks.cache_duration', 1800)),
+                ->default(fn () => config('minecraft-modpacks.cache_duration', 1800)),
 
             TextInput::make('request_timeout')
                 ->label(trans('minecraft-modpacks::modpacks.ui.plugin.request_timeout'))
                 ->numeric()
                 ->minValue(1)
                 ->maxValue(30)
-                ->default(fn () => config('modpacks.request_timeout', 10)),
+                ->default(fn () => config('minecraft-modpacks.request_timeout', 10)),
         ];
     }
 

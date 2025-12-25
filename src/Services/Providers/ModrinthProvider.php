@@ -23,7 +23,7 @@ class ModrinthProvider implements ModpackServiceInterface
                 $params['query'] = $query;
             }
 
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . '/search', $params);
 
             if (!$response->successful()) {
@@ -57,7 +57,7 @@ class ModrinthProvider implements ModpackServiceInterface
     public function fetchVersions(string $modpackId): array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/project/{$modpackId}/version");
 
             if (!$response->successful()) {
@@ -85,7 +85,7 @@ class ModrinthProvider implements ModpackServiceInterface
     public function fetchDetails(string $modpackId): ?array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/project/{$modpackId}");
 
             if (!$response->successful()) {
@@ -116,7 +116,7 @@ class ModrinthProvider implements ModpackServiceInterface
     public function fetchDownloadInfo(string $modpackId, string $versionId): ?array
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/version/{$versionId}");
 
             if (!$response->successful()) {

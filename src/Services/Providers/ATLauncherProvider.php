@@ -22,7 +22,7 @@ class ATLauncherProvider implements ModpackServiceInterface
                 ? "query { packs(first: {$limit}) { id safeName name description websiteUrl } }"
                 : "query { searchPacks(first: {$limit}, query: \"{$query}\") { id safeName name description websiteUrl } }";
 
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->post(self::API_BASE . '/graphql', $this->buildGraphQLQuery($graphQuery));
 
             if (!$response->successful()) {
@@ -61,7 +61,7 @@ class ATLauncherProvider implements ModpackServiceInterface
         try {
             $graphQuery = "query { pack(pack: { id: {$modpackId} }) { versions(first: 100) { version } } }";
 
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->post(self::API_BASE . '/graphql', $this->buildGraphQLQuery($graphQuery));
 
             if (!$response->successful()) {
@@ -92,7 +92,7 @@ class ATLauncherProvider implements ModpackServiceInterface
         try {
             $graphQuery = "query { pack(pack: { id: {$modpackId} }) { name description safeName websiteUrl } }";
 
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->post(self::API_BASE . '/graphql', $this->buildGraphQLQuery($graphQuery));
 
             if (!$response->successful()) {

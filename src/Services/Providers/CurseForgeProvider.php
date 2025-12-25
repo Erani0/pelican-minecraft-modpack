@@ -14,7 +14,7 @@ class CurseForgeProvider implements ModpackServiceInterface
 
     private function getHeaders(): array
     {
-        $apiKey = config('modpacks.curseforge_api_key');
+        $apiKey = config('minecraft-modpacks.curseforge_api_key');
 
         if (empty($apiKey)) {
             Log::warning(trans('minecraft-modpacks::modpacks.providers.curseforge.warning.log1'));
@@ -28,7 +28,7 @@ class CurseForgeProvider implements ModpackServiceInterface
 
     private function hasApiKey(): bool
     {
-        $apiKey = config('modpacks.curseforge_api_key');
+        $apiKey = config('minecraft-modpacks.curseforge_api_key');
         return !empty($apiKey);
     }
 
@@ -54,7 +54,7 @@ class CurseForgeProvider implements ModpackServiceInterface
             }
 
             $response = Http::withHeaders($this->getHeaders())
-                ->timeout(config('modpacks.request_timeout', 10))
+                ->timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . '/mods/search', $params);
 
             if (!$response->successful()) {
@@ -96,7 +96,7 @@ class CurseForgeProvider implements ModpackServiceInterface
 
         try {
             $response = Http::withHeaders($this->getHeaders())
-                ->timeout(config('modpacks.request_timeout', 10))
+                ->timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/mods/{$modpackId}/files");
 
             if (!$response->successful()) {
@@ -130,7 +130,7 @@ class CurseForgeProvider implements ModpackServiceInterface
 
         try {
             $response = Http::withHeaders($this->getHeaders())
-                ->timeout(config('modpacks.request_timeout', 10))
+                ->timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/mods/{$modpackId}");
 
             if (!$response->successful()) {
@@ -171,7 +171,7 @@ class CurseForgeProvider implements ModpackServiceInterface
 
         try {
             $response = Http::withHeaders($this->getHeaders())
-                ->timeout(config('modpacks.request_timeout', 10))
+                ->timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . "/mods/{$modpackId}/files/{$versionId}");
 
             if (!$response->successful()) {

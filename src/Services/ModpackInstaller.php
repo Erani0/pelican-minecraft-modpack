@@ -499,7 +499,7 @@ class ModpackInstaller
 
         $this->clearModsDirectory($server);
 
-        $apiKey = config('modpacks.curseforge_api_key');
+        $apiKey = config('minecraft-modpacks.curseforge_api_key');
         if (empty($apiKey)) {
             Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.log9'));
             return $this->buildOverridesPath($manifest, $baseDir);
@@ -568,7 +568,7 @@ class ModpackInstaller
      */
     private function getCurseForgeDownloadUrl(int|string $projectId, int|string $fileId): ?string
     {
-        $apiKey = config('modpacks.curseforge_api_key');
+        $apiKey = config('minecraft-modpacks.curseforge_api_key');
         if (empty($apiKey)) {
             return null;
         }
@@ -580,7 +580,7 @@ class ModpackInstaller
             ];
 
             $response = Http::withHeaders($headers)
-                ->timeout(config('modpacks.request_timeout', 10))
+                ->timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::CURSEFORGE_API_BASE . "/mods/{$projectId}/files/{$fileId}/download-url");
 
             if ($response->successful()) {
@@ -589,7 +589,7 @@ class ModpackInstaller
             }
 
             $fallback = Http::withHeaders($headers)
-                ->timeout(config('modpacks.request_timeout', 10))
+                ->timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::CURSEFORGE_API_BASE . "/mods/{$projectId}/files/{$fileId}");
 
             if (!$fallback->successful()) {
@@ -792,7 +792,7 @@ class ModpackInstaller
         }
 
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->withOptions(['sink' => $tmpFile, 'stream' => true])
                 ->get($this->currentDownloadUrl);
 

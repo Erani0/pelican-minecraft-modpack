@@ -18,7 +18,7 @@ class TechnicProvider implements ModpackServiceInterface
 
             $build = $this->getBuild();
 
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . '/search', [
                     'q' => $searchQuery,
                     'build' => $build,
@@ -77,7 +77,7 @@ class TechnicProvider implements ModpackServiceInterface
     private function getBuild(): string
     {
         try {
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . '/launcher/version/stable4');
 
             if ($response->successful()) {
@@ -96,7 +96,7 @@ class TechnicProvider implements ModpackServiceInterface
         try {
             $build = $this->getBuild();
 
-            $response = Http::timeout(config('modpacks.request_timeout', 10))
+            $response = Http::timeout(config('minecraft-modpacks.request_timeout', 10))
                 ->get(self::API_BASE . '/modpack/' . urlencode($modpackId), [
                     'build' => $build,
                 ]);
