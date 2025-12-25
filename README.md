@@ -25,6 +25,7 @@ Browse and install modpacks from **6 different platforms**:
 - ⚡ **Smart Caching** - Automatic API response caching for performance
 - 🔄 **Provider Filtering** - Switch between platforms seamlessly
 - 🗑️ **Safe Installation** - Optional server file cleanup before installation
+- 🌐 **Multi-Language Support (WIP)** - 23 languages: DE, EN, CS, DA, ES, FR, HU, ID, IT, NL, NO, PL, PT, RO, SK, SR, SV, TR, Pirate
 
 ## 📋 Requirements
 
@@ -140,17 +141,46 @@ minecraft-modpacks/
 ├── README.md                        # Documentation
 ├── .gitignore                       # Git ignore rules
 ├── config/
-│   └── modpacks.php                # Configuration file
+│   └── minecraft-modpacks.php       # Configuration file
+├── database/
+│   └── Seeders/
+│       └── MinecraftModpacksSeeder.php # Database seeder
+├── lang/                            # Multi-language support (23 languages WIP)
+│   ├── cs-CZ/modpacks.php           # Czech
+│   ├── da-DK/modpacks.php           # Danish
+│   ├── de-DE/modpacks.php           # German
+│   ├── dutch/modpacks.php           # Dutch
+│   ├── en/modpacks.php              # English
+│   ├── es-ES/modpacks.php           # Spanish
+│   ├── fi-FI/modpacks.php           # Finnish
+│   ├── fr-FR/modpacks.php           # French
+│   ├── hu-HU/modpacks.php           # Hungarian
+│   ├── id-ID/modpacks.php           # Indonesian
+│   ├── it-IT/modpacks.php           # Italian
+│   ├── lt-LT/modpacks.php           # Lithuanian
+│   ├── nl-NL/modpacks.php           # Dutch (NL)
+│   ├── no-NO/modpacks.php           # Norwegian
+│   ├── pirat/modpacks.php           # Pirate language
+│   ├── pl-PL/modpacks.php           # Polish
+│   ├── pt-BR/modpacks.php           # Brazilian Portuguese
+│   ├── pt-PT/modpacks.php           # Portuguese
+│   ├── ro-RO/modpacks.php           # Romanian
+│   ├── sk-SK/modpacks.php           # Slovak
+│   ├── sr-SP/modpacks.php           # Serbian
+│   ├── sv-SE/modpacks.php           # Swedish
+│   └── tr-TR/modpacks.php           # Turkish
 └── src/
     ├── MinecraftModpacksPlugin.php      # Main plugin class
-    ├── Enums/
-    │   └── ModpackProvider.php          # Provider enumeration
+    ├── Providers/
+    │   └── MinecraftModpacksPluginProvider.php # Laravel service provider
     ├── Contracts/
     │   └── ModpackServiceInterface.php  # Service contract
+    ├── Enums/
+    │   └── ModpackProvider.php          # Provider enumeration
     ├── Services/
-    │   ├── ModpackManager.php           # Central manager (caching, orchestration)
+    │   ├── ModpackManager.php           # Central manager
     │   ├── ModpackInstaller.php         # Installation handler
-    │   └── Providers/                   # Provider implementations
+    │   └── Providers/
     │       ├── ModrinthProvider.php
     │       ├── CurseForgeProvider.php
     │       ├── ATLauncherProvider.php
