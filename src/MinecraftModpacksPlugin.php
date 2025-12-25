@@ -61,6 +61,13 @@ class MinecraftModpacksPlugin implements HasPluginSettings, Plugin
                 ->minValue(1)
                 ->maxValue(30)
                 ->default(fn () => config('minecraft-modpacks.request_timeout', 10)),
+
+            TextInput::make('modpacks_per_page')
+                ->label(trans('minecraft-modpacks::modpacks.ui.plugin.modpacks_per_page'))
+                ->numeric()
+                ->minValue(5)
+                ->maxValue(100)
+                ->default(fn () => config('minecraft-modpacks.modpacks_per_page', 20)),
         ];
     }
 
@@ -78,6 +85,10 @@ class MinecraftModpacksPlugin implements HasPluginSettings, Plugin
 
         if (isset($data['request_timeout'])) {
             $envData['MODPACKS_REQUEST_TIMEOUT'] = $data['request_timeout'];
+        }
+
+        if (isset($data['modpacks_per_page'])) {
+            $envData['MODPACKS_PER_PAGE'] = $data['modpacks_per_page'];
         }
 
         $this->writeToEnvironment($envData);

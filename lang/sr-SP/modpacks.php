@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Potrebno za pregled CurseForge modpack-ova. Nabavi svoj kljuc na console.curseforge.com',
             'cache_duration' => 'Trajanje cache-a (sekunde)',
             'request_timeout' => 'Vremensko ogranicenje API zahteva (sekunde)',
+			'modpacks_per_page' => 'Модпакови по страни',
+            'modpacks_per_page_help' => 'Број модпакова приказан по страни (5-100)',
             'settings_updated' => 'Podešavanja ažurirana',
             'settings_updated_message' => 'Podešavanja plugina su uspešno sacuvana.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

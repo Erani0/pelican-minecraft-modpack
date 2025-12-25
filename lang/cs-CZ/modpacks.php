@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Povinné pro prohlížení modpacku CurseForge. Získejte svuj klíc na console.curseforge.com',
             'cache_duration' => 'Doba trvání mezipameti (sekundy)',
             'request_timeout' => 'Casový limit požadavku API (sekundy)',
+			'modpacks_per_page' => 'Balíčků na stránku',
+            'modpacks_per_page_help' => 'Počet modpacků zobrazených na stránku (5-100)',
             'settings_updated' => 'Nastavení aktualizována',
             'settings_updated_message' => 'Nastavení pluginu byla úspešne uložena.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

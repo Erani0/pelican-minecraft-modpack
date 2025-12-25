@@ -41,5 +41,5 @@ return [
     | Default number of modpacks to display per page.
     |
     */
-    'per_page' => env('MODPACKS_PER_PAGE', 20),
+    'modpacks_per_page' => env('MODPACKS_PER_PAGE', 20),
 ];

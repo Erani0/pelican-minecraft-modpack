@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
 use TimVida\MinecraftModpacks\Enums\ModpackProvider;
 use TimVida\MinecraftModpacks\Services\ModpackInstaller;
 use TimVida\MinecraftModpacks\Services\ModpackManager;
+use TimVida\MinecraftModpacks\Services\ModpacksService;
 
 class ModpackBrowser extends Page implements HasTable
 {
@@ -42,6 +43,16 @@ class ModpackBrowser extends Page implements HasTable
 
     protected static ?int $navigationSort = 25;
 
+    /**
+    * Get modpacks per page from config
+    */
+
+    protected function getPerPage(): int
+    {
+        $perPage = config('minecraft-modpacks.modpacks_per_page', 20);
+        return max(5, min(100, (int)$perPage));
+    }
+
     public function getTitle(): string
     {
         return trans('minecraft-modpacks::modpacks.ui.browser.title');
@@ -50,8 +61,10 @@ class ModpackBrowser extends Page implements HasTable
     public function table(Table $table): Table
     {
         $manager = app(ModpackManager::class);
+        $perPage = $this->getPerPage();
 
         return $table
+
             ->records(function (?string $search, int $page) use ($manager) {
                 $filters = $this->tableFilters;
                 $providerFilter = $filters['provider'] ?? ModpackProvider::MODRINTH->value;
@@ -66,8 +79,7 @@ class ModpackBrowser extends Page implements HasTable
                 } catch (\Exception $e) {
                     $provider = ModpackProvider::MODRINTH;
                 }
-
-                $perPage = 20;
+        	$perPage = $this->getPerPage();
                 $result = $manager->searchModpacks($provider, $search, $page, $perPage);
 
                 return new LengthAwarePaginator(
@@ -77,7 +89,7 @@ class ModpackBrowser extends Page implements HasTable
                     $page
                 );
             })
-            ->paginated([20])
+            ->paginated([$perPage])
             ->filters([
                 SelectFilter::make('provider')
                     ->label(trans('minecraft-modpacks::modpacks.ui.browser.provider'))
@@ -165,7 +177,7 @@ class ModpackBrowser extends Page implements HasTable
                                         if (!empty($version['published_at'])) {
                                             $info[] = Carbon::parse($version['published_at'])->format('M d, Y');
                                         }
-                                        return [$version['id'] => implode(' � ', $info)];
+                                        return [$version['id'] => implode(' • ', $info)];
                                     })->toArray()
                                 ),
 
@@ -263,5 +275,29 @@ class ModpackBrowser extends Page implements HasTable
                     $this->resetTable();
                 }),
         ];
+    }
+ 
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $server = Filament::getTenant();
+        
+        if (!$server) {
+            return false;
+        }
+        
+        return ModpacksService::hasModpacksSupport($server);
+    }
+
+    /**
+     * Extra Sicherheit: Falls jemand URL direkt aufruft
+     */
+    public function authorizeAccess(): void
+    {
+        $server = $this->record;
+        
+        if (!ModpacksService::hasModpacksSupport($server)) {
+            abort(403, 'Modpack Browser ist für diesen Server nicht verfügbar.');
+        }
     }
 }

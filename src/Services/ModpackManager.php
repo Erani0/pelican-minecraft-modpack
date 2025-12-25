@@ -42,8 +42,9 @@ class ModpackManager
         ModpackProvider $provider,
         ?string $query = null,
         int $page = 1,
-        int $perPage = 20
+        int $perPage = null
     ): array {
+	$perPage = $perPage ?? config('minecraft-modpacks.modpacks_per_page', 20);
         $cacheKey = $this->buildCacheKey('search', $provider, $query, $page, $perPage);
 
         return Cache::remember($cacheKey, config('minecraft-modpacks.cache_duration', 1800), function () use ($provider, $query, $page, $perPage) {

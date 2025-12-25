@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Richiesta per esplorare i modpack CurseForge. Ottieni la tua chiave su console.curseforge.com',
             'cache_duration' => 'Durata cache (secondi)',
             'request_timeout' => 'Timeout richiesta API (secondi)',
+            'modpacks_per_page' => 'Modpack per pagina',
+            'modpacks_per_page_help' => 'Numero di modpack da visualizzare per pagina (5-100)',
             'settings_updated' => 'Impostazioni aggiornate',
             'settings_updated_message' => 'Le impostazioni del plugin sono state salvate con successo.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

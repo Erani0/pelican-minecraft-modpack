@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Szükséges a CurseForge modpackek böngészéséhez. Szerezd meg a kulcsod a console.curseforge.com oldalon',
             'cache_duration' => 'Gyorsítótár idotartama (másodperc)',
             'request_timeout' => 'API kérés idotúllépése (másodperc)',
+            'modpacks_per_page' => 'Modpackok oldalanként',
+            'modpacks_per_page_help' => 'Az oldalanként megjelenítendő modpackok száma (5-100)',
             'settings_updated' => 'Beállítások frissítve',
             'settings_updated_message' => 'A bovítmény beállításai sikeresen mentve.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

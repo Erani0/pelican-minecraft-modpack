@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Vereist voor het bladeren door CurseForge-modpacks. Haal je sleutel op via console.curseforge.com',
             'cache_duration' => 'Cacheduur (seconden)',
             'request_timeout' => 'API-aanvraag-time-out (seconden)',
+            'modpacks_per_page' => 'Modpacks per pagina',
+            'modpacks_per_page_help' => 'Aantal modpacks om per pagina weer te geven (5-100)',
             'settings_updated' => 'Instellingen bijgewerkt',
             'settings_updated_message' => 'Plugin-instellingen zijn succesvol opgeslagen.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

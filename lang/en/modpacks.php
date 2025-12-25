@@ -177,6 +177,8 @@ return [
             'curseforge_api_key_help' => 'Required for CurseForge modpack browsing. Get your key at console.curseforge.com',
             'cache_duration' => 'Cache Duration (seconds)',
             'request_timeout' => 'API Request Timeout (seconds)',
+			'modpacks_per_page' => 'Modpacks per Page',
+            'modpacks_per_page_help' => 'Number of modpacks to display per page (5-100)',
             'settings_updated' => 'Settings Updated',
             'settings_updated_message' => 'Plugin settings have been saved successfully.',
         ],

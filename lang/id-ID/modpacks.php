@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Diperlukan untuk penjelajahan modpack CurseForge. Dapatkan kunci Anda di console.curseforge.com',
             'cache_duration' => 'Durasi Cache (detik)',
             'request_timeout' => 'Batas Waktu Permintaan API (detik)',
+			'modpacks_per_page' => 'Modpacks per Halaman',
+            'modpacks_per_page_help' => 'Jumlah modpack yang ditampilkan per halaman (5-100)',
             'settings_updated' => 'Pengaturan Diperbarui',
             'settings_updated_message' => 'Pengaturan plugin berhasil disimpan.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

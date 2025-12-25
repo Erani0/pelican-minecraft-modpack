@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Reikalingas naršant CurseForge modpack. Gaukite savo rakta adresu console.curseforge.com',
             'cache_duration' => 'Talpyklos trukme (sekundemis)',
             'request_timeout' => 'API užklausos laiko limitas (sekundemis)',
+            'modpacks_per_page' => 'Modpackai per puslapį',
+            'modpacks_per_page_help' => 'Modpackų skaičius per puslapį (5-100)',
             'settings_updated' => 'Nustatymai atnaujinti',
             'settings_updated_message' => 'Iskiepio nustatymai sekmingai išsaugoti.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

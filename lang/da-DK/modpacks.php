@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Påkrævet til CurseForge modpack browsing. Få din nøgle på console.curseforge.com',
             'cache_duration' => 'Cache varighed (sekunder)',
             'request_timeout' => 'API anmodning timeout (sekunder)',
+            'modpacks_per_page' => 'Modpacks pr. side',
+            'modpacks_per_page_help' => 'Antal modpacks der skal vises pr. side (5-100)',
             'settings_updated' => 'Indstillinger opdateret',
             'settings_updated_message' => 'Plugin indstillinger er blevet gemt succesfuldt.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

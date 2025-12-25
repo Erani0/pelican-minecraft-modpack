@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Krävs för att bläddra i CurseForge-modpacks. Hämta din nyckel på console.curseforge.com',
             'cache_duration' => 'Cache-varaktighet (sekunder)',
             'request_timeout' => 'Tidsgräns för API-förfrågan (sekunder)',
+			'modpacks_per_page' => 'Modpacks per sida',
+            'modpacks_per_page_help' => 'Antal modpacks att visa per sida (5-100)',
             'settings_updated' => 'Inställningar uppdaterade',
             'settings_updated_message' => 'Inställningarna för pluginet har sparats.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

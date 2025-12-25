@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Erforderlich für CurseForge-Modpack-Browsing. Holen Sie Ihren Schlüssel unter console.curseforge.com',
             'cache_duration' => 'Cache-Dauer (Sekunden)',
             'request_timeout' => 'API-Anfrage-Timeout (Sekunden)',
+            'modpacks_per_page' => 'Modpacks pro Seite',
+            'modpacks_per_page_help' => 'Anzahl der Modpacks die pro Seite angezeigt werden (5-100)',
             'settings_updated' => 'Einstellungen aktualisiert',
             'settings_updated_message' => 'Plugin-Einstellungen wurden erfolgreich gespeichert.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

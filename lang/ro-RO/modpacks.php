@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Necesara pentru navigarea modpack-urilor CurseForge. Ob?ine cheia la console.curseforge.com',
             'cache_duration' => 'Durata cache-ului (secunde)',
             'request_timeout' => 'Timeout pentru cererea API (secunde)',
+			'modpacks_per_page' => 'Modpack-uri pe pagină',
+            'modpacks_per_page_help' => 'Numărul de modpack-uri de afișat pe pagină (5-100)',
             'settings_updated' => 'Setari actualizate',
             'settings_updated_message' => 'Setarile plugin-ului au fost salvate cu succes.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

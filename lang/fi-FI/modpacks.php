@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Vaaditaan CurseForge-modpackien selaamiseen. Hanki avain osoitteesta console.curseforge.com',
             'cache_duration' => 'Välimuistin kesto (sekuntia)',
             'request_timeout' => 'API-pyynnön aikakatkaisu (sekuntia)',
+            'modpacks_per_page' => 'Modpackit sivulla',
+            'modpacks_per_page_help' => 'Modpackien määrä per sivulla (5-100)',
             'settings_updated' => 'Asetukset päivitetty',
             'settings_updated_message' => 'Lisäosan asetukset tallennettiin onnistuneesti.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

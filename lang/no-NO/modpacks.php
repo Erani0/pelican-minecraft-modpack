@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Påkrevd for å bla i CurseForge-modpacks. Skaff nøkkelen din på console.curseforge.com',
             'cache_duration' => 'Cache-varighet (sekunder)',
             'request_timeout' => 'API-forespørsel tidsavbrudd (sekunder)',
+            'modpacks_per_page' => 'Modpacks per side',
+            'modpacks_per_page_help' => 'Antall modpacks som skal vises per side (5-100)',
             'settings_updated' => 'Innstillinger oppdatert',
             'settings_updated_message' => 'Programtilleggsinnstillinger ble lagret.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

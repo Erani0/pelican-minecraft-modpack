@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Wymagany do przegladania paczek modów CurseForge. Zdobadz swój klucz na console.curseforge.com',
             'cache_duration' => 'Czas przechowywania pamieci podrecznej (sekundy)',
             'request_timeout' => 'Limit czasu zadania API (sekundy)',
+            'modpacks_per_page' => 'Modpacki na stronę',
+            'modpacks_per_page_help' => 'Liczba modpacków wyświetlanych na stronę (5-100)',
             'settings_updated' => 'Ustawienia zaktualizowane',
             'settings_updated_message' => 'Ustawienia wtyczki zostaly pomyslnie zapisane.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',

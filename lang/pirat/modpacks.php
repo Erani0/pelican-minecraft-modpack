@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'Erforderlich für CurseForge-Modpack-Browsing. Hol dir deinen Schlüssel auf console.curseforge.com, Landratte.',
             'cache_duration' => 'Cache-Dauer (Sekunden auf See)',
             'request_timeout' => 'API-Anfrage-Timeout (Sekunden im Sturm)',
+            'modpacks_per_page' => 'Modpacks per Page, Yarrr!',
+            'modpacks_per_page_help' => 'Arrr, how many modpacks ye be wantin\' per page (5-100)',
             'settings_updated' => 'Einstellungen aktualisiert, Logbuch nachgeführt',
             'settings_updated_message' => 'Plugin-Einstellungen erfolgreich im Logbuch gesichert.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth-Bucht',
             'curseforge' => 'CurseForge-Hafen',

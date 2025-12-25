@@ -177,9 +177,12 @@ return [
             'curseforge_api_key_help' => 'CurseForge modpaketlerini taramak için gereklidir. Anahtarinizi console.curseforge.com adresinden alin',
             'cache_duration' => 'Cache Süresi (saniye)',
             'request_timeout' => 'API Istek Zaman Asimi (saniye)',
+			'modpacks_per_page' => 'Sayfa başına Modpackler',
+            'modpacks_per_page_help' => 'Sayfa başına gösterilecek modpack sayısı (5-100)',
             'settings_updated' => 'Ayarlar Güncellendi',
             'settings_updated_message' => 'Eklenti ayarlari basariyla kaydedildi.',
         ],
+
         'providers' => [
             'modrinth' => 'Modrinth',
             'curseforge' => 'CurseForge',
