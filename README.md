@@ -25,8 +25,9 @@ Browse and install modpacks from **6 different platforms**:
 - ⚡ **Smart Caching** - Automatic API response caching for performance
 - 🔄 **Provider Filtering** - Switch between platforms seamlessly
 - 🗑️ **Safe Installation** - Optional server file cleanup before installation
-- 🌐 **Multi-Language Support (WIP)** - 23 languages: DE, EN, CS, DA, ES, FR, HU, ID, IT, NL, NO, PL, PT, RO, SK, SR, SV, TR, Pirate
 - 🔐 **Feature-Based Access Control** - Restrict modpack access using Egg features
+- 💾 **Automatic Backups & Updates** - Tracks installed modpacks, shows update availability, creates backups before installation/updates
+- 🌐 **Multi-Language Support (WIP)** - 34 languages: AR, BE, BG, CS, DA, DE, EL, EN, ES, FI, FR, HE, HU, ID, IT, JA, KO, LT, NL, NO, PL, PT-BR, PT-PT, RO, RU, SK, SR, SV, TR, UK, ZH-CN, ZH-TW, Pirate
 
 ## 📋 Requirements
 
@@ -122,6 +123,14 @@ MODPACKS_PER_PAGE=20
 
 ## 📖 Usage
 
+### Updates & Backups
+- **Tracks currently installed modpack and version** with clear status display
+- **Shows "Update Available"** when newer versions exist
+- **Automatic backups** before every installation/update with success/failure feedback
+- **Backup management** - deletes old backups when limits reached
+- All messages localized in 34 languages via `tracking` & `installer` sections
+
+
 ### Installing a Modpack
 
 1. Navigate to your Minecraft server in Pelican Panel
@@ -157,58 +166,78 @@ minecraft-modpacks/
 ├── LICENSE                          # MIT License
 ├── README.md                        # Documentation
 ├── .gitignore                       # Git ignore rules
+│
 ├── config/
 │   └── minecraft-modpacks.php       # Configuration file
+│
 ├── database/
 │   └── Seeders/
-│       └── MinecraftModpacksSeeder.php # Database seeder
-├── lang/                            # Multi-language support (23 languages WIP)
+│       └── MinecraftModpacksSeeder.php   # Database seeder
+│
+├── lang/                            # Multi-language support (34 languages - complete)
+│   ├── ar-SA/modpacks.php           # Arabic
+│   ├── be-BY/modpacks.php           # Belarusian
+│   ├── bg-BG/modpacks.php           # Bulgarian
 │   ├── cs-CZ/modpacks.php           # Czech
 │   ├── da-DK/modpacks.php           # Danish
 │   ├── de-DE/modpacks.php           # German
 │   ├── dutch/modpacks.php           # Dutch
+│   ├── el-GR/modpacks.php           # Greek
 │   ├── en/modpacks.php              # English
 │   ├── es-ES/modpacks.php           # Spanish
 │   ├── fi-FI/modpacks.php           # Finnish
 │   ├── fr-FR/modpacks.php           # French
+│   ├── he-IL/modpacks.php           # Hebrew
 │   ├── hu-HU/modpacks.php           # Hungarian
 │   ├── id-ID/modpacks.php           # Indonesian
 │   ├── it-IT/modpacks.php           # Italian
+│   ├── ja-JP/modpacks.php           # Japanese
+│   ├── ko-KR/modpacks.php           # Korean
 │   ├── lt-LT/modpacks.php           # Lithuanian
 │   ├── nl-NL/modpacks.php           # Dutch (NL)
 │   ├── no-NO/modpacks.php           # Norwegian
-│   ├── pirat/modpacks.php           # Pirate language
+│   ├── pirat/modpacks.php           # Pirate 🏴‍☠️
 │   ├── pl-PL/modpacks.php           # Polish
 │   ├── pt-BR/modpacks.php           # Brazilian Portuguese
 │   ├── pt-PT/modpacks.php           # Portuguese
 │   ├── ro-RO/modpacks.php           # Romanian
+│   ├── ru-RU/modpacks.php           # Russian
 │   ├── sk-SK/modpacks.php           # Slovak
 │   ├── sr-SP/modpacks.php           # Serbian
 │   ├── sv-SE/modpacks.php           # Swedish
-│   └── tr-TR/modpacks.php           # Turkish
-└── src/
-    ├── MinecraftModpacksPlugin.php      # Main plugin class
-    ├── Providers/
-    │   └── MinecraftModpacksPluginProvider.php # Laravel service provider
-    ├── Contracts/
-    │   └── ModpackServiceInterface.php  # Service contract
-    ├── Enums/
-    │   └── ModpackProvider.php          # Provider enumeration
-    ├── Services/
-    │   ├── ModpackManager.php           # Central manager
-    │   ├── ModpackInstaller.php         # Installation handler
-    │   ├── ModpacksService.php          # Access control service
-    │   └── Providers/
-    │       ├── ModrinthProvider.php
-    │       ├── CurseForgeProvider.php
-    │       ├── ATLauncherProvider.php
-    │       ├── FeedTheBeastProvider.php
-    │       ├── TechnicProvider.php
-    │       └── VoidsWrathProvider.php
-    └── Filament/
-        └── Server/
-            └── Pages/
-                └── ModpackBrowser.php   # UI component
+│   ├── tr-TR/modpacks.php           # Turkish
+│   ├── uk-UA/modpacks.php           # Ukrainian
+│   ├── zh-CN/modpacks.php           # Chinese (Simplified)
+│   └── zh-TW/modpacks.php           # Chinese (Traditional)
+│
+├── src/
+│   ├── MinecraftModpacksPlugin.php              # Main plugin class
+│   │
+│   ├── Providers/
+│   │   └── MinecraftModpacksPluginProvider.php  # Laravel service provider
+│   │
+│   ├── Contracts/
+│   │   └── ModpackServiceInterface.php          # Service contract for providers
+│   │
+│   ├── Enums/
+│   │   └── ModpackProvider.php                  # Provider enumeration
+│   │
+│   ├── Services/
+│   │   ├── ModpackManager.php                   # Central modpack manager (caching, routing)
+│   │   ├── ModpackInstaller.php                 # Handles installation, updates & backups
+│   │   ├── ModpacksService.php                  # Access control & API abstraction
+│   │   └── Providers/
+│   │       ├── ModrinthProvider.php
+│   │       ├── CurseForgeProvider.php
+│   │       ├── ATLauncherProvider.php
+│   │       ├── FeedTheBeastProvider.php
+│   │       ├── TechnicProvider.php
+│   │       └── VoidsWrathProvider.php
+│   │
+│   └── Filament/
+│       └── Server/
+│           └── Pages/
+│               └── ModpackBrowser.php           # Filament UI component for modpack browsing
 ```
 
 ### Architecture

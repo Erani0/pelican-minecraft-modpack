@@ -12,6 +12,9 @@ use App\Repositories\Daemon\DaemonFileRepository;
 use TimVida\MinecraftModpacks\Enums\ModpackProvider;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use App\Services\Backups\InitiateBackupService;
+use TimVida\MinecraftModpacks\Services\ModpackTracker;
+
 
 class ModpackInstaller
 {
@@ -24,7 +27,9 @@ class ModpackInstaller
     public function __construct(
         private ModpackManager $modpackManager,
         private DaemonFileRepository $fileRepository
-    ) {
+,
+        private InitiateBackupService $backupService,
+        private ModpackTracker $modpackTracker    ) {
     }
 
     /**
@@ -58,6 +63,43 @@ class ModpackInstaller
      * @param bool $deleteExisting Whether to delete existing server files before installation
      * @return bool
      */
+
+    /**
+     * Create a backup before modpack installation.
+     *
+     * @param Server $server
+     * @return bool
+     */
+    private function createBackupBeforeInstall(Server $server): bool
+    {
+        try {
+            Log::info(trans('minecraft-modpacks::modpacks.tracking.creating_backup'), [
+                'server' => $server->id
+            ]);
+
+            $backup = $this->backupService->handle($server, null, true);
+
+            if ($backup) {
+                Log::info(trans('minecraft-modpacks::modpacks.tracking.backup_created'), [
+                    'server' => $server->id,
+                    'backup_id' => $backup->id
+                ]);
+                return true;
+            }
+
+            Log::warning(trans('minecraft-modpacks::modpacks.tracking.backup_failed'), [
+                'server' => $server->id
+            ]);
+            return false;
+        } catch (\Exception $e) {
+            Log::error(trans('minecraft-modpacks::modpacks.tracking.backup_error'), [
+                'server' => $server->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
     public function install(
         Server $server,
         ModpackProvider $provider,
@@ -125,6 +167,29 @@ class ModpackInstaller
                 'version' => $versionId,
             ]);
 
+            
+            // Save tracking information
+            $modpackDetails = $this->modpackManager->getModpackDetails($provider, $modpackId);
+            $modpackName = $modpackDetails['name'] ?? trans('minecraft-modpacks::modpacks.installer.unknown_modpack');
+
+            $versionDetails = $this->modpackManager->getModpackVersions($provider, $modpackId);
+            $versionName = $versionId;
+            foreach ($versionDetails as $version) {
+                if (($version['id'] ?? '') === $versionId) {
+                    $versionName = $version['name'] ?? $versionId;
+                    break;
+                }
+            }
+
+            $this->modpackTracker->saveInstalledModpack(
+                $server,
+                $provider->value,
+                $modpackId,
+                $modpackName,
+                $versionId,
+                $versionName
+            );
+
             return true;
         } catch (\Exception $e) {
             Log::error(trans('minecraft-modpacks::modpacks.installer.error.log2'), [
@@ -163,6 +228,170 @@ class ModpackInstaller
             $daemonServerRepository->power('kill');
             $this->waitForServerOffline($daemonServerRepository);
 
+
+            // Get current installed version for backup name
+            $backupName = trans('minecraft-modpacks::modpacks.installer.backup.pre_installation');
+            try {
+                $currentModpack = $this->modpackTracker->getInstalledModpack($server);
+
+                if ($currentModpack) {
+                    $oldVersion = $currentModpack['version_name'] ?? trans('minecraft-modpacks::modpacks.installer.unknown');
+                    $oldModpack = $currentModpack['modpack_name'] ?? trans('minecraft-modpacks::modpacks.installer.unknown');
+
+                    // Remove modpack name from version if it's included
+                    if (str_contains($oldVersion, $oldModpack)) {
+                        $oldVersion = trim(str_replace($oldModpack, '', $oldVersion));
+                    }
+
+                    $backupName = trans('minecraft-modpacks::modpacks.installer.backup.before_update', [
+                        'modpack' => $oldModpack,
+                        'version' => $oldVersion
+                    ]);
+
+                    Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.backup_name_generated'), [
+                        'backup_name' => $backupName,
+                        'old_modpack' => $oldModpack,
+                        'old_version' => $oldVersion
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.backup_name_failed'), [
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            Log::info(trans('minecraft-modpacks::modpacks.installer.info.creating_backup'), [
+                'server' => $server->id,
+                'delete_existing' => $deleteExisting,
+                'backup_name' => $backupName
+            ]);
+
+            // Check if we need to delete old backups before creating new one
+            try {
+                $backupLimit = $server->backup_limit;
+
+                if ($backupLimit > 0) {
+                    $currentBackupCount = $server->backups()->count();
+
+                    Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.backup_limit_check'), [
+                        'current_count' => $currentBackupCount,
+                        'limit' => $backupLimit
+                    ]);
+
+                    // If we're at the limit, delete oldest backup(s)
+                    if ($currentBackupCount >= $backupLimit) {
+                        $backupsToDelete = $currentBackupCount - $backupLimit + 1;
+
+                        Log::info(trans('minecraft-modpacks::modpacks.installer.info.backup_limit_reached'), [
+                            'current_count' => $currentBackupCount,
+                            'limit' => $backupLimit,
+                            'to_delete' => $backupsToDelete
+                        ]);
+
+                        $oldestBackups = $server->backups()
+                            ->whereNull('deleted_at')
+                            ->orderBy('created_at', 'asc')
+                            ->limit($backupsToDelete)
+                            ->get();
+
+                        foreach ($oldestBackups as $oldBackup) {
+                            try {
+                                $deleteService = app(\App\Services\Backups\DeleteBackupService::class);
+                                $deleteService->handle($oldBackup);
+
+                                Log::info(trans('minecraft-modpacks::modpacks.installer.info.deleted_old_backup'), [
+                                    'backup_id' => $oldBackup->id,
+                                    'backup_name' => $oldBackup->name,
+                                    'created_at' => $oldBackup->created_at
+                                ]);
+                            } catch (\Exception $e) {
+                                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.delete_backup_failed'), [
+                                    'backup_id' => $oldBackup->id,
+                                    'error' => $e->getMessage()
+                                ]);
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.check_delete_backups_failed'), [
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            $backupCreated = false;
+
+            try {
+                $backup = $this->backupService->handle($server, $backupName, false);
+
+                if ($backup) {
+                    Log::info(trans('minecraft-modpacks::modpacks.installer.info.backup_initiated'), [
+                        'server' => $server->id,
+                        'backup_id' => $backup->id,
+                        'backup_uuid' => $backup->uuid,
+                        'backup_name' => $backupName
+                    ]);
+
+                    // Wait for backup to complete (max 5 minutes)
+                    $maxWaitSeconds = 300;
+                    $waited = 0;
+                    $checkInterval = 5;
+
+                    while ($waited < $maxWaitSeconds) {
+                        sleep($checkInterval);
+                        $waited += $checkInterval;
+
+                        // Refresh backup from database
+                        $backup->refresh();
+
+                        // Check if backup completed successfully
+                        if ($backup->is_successful && $backup->completed_at !== null) {
+                            Log::info(trans('minecraft-modpacks::modpacks.installer.info.backup_completed'), [
+                                'server' => $server->id,
+                                'backup_id' => $backup->id,
+                                'waited_seconds' => $waited
+                            ]);
+                            $backupCreated = true;
+                            break;
+                        }
+
+                        // Check if backup failed
+                        if ($backup->completed_at !== null && !$backup->is_successful) {
+                            Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.backup_completed_failed'), [
+                                'server' => $server->id,
+                                'backup_id' => $backup->id,
+                                'waited_seconds' => $waited
+                            ]);
+                            break;
+                        }
+
+                        Log::debug(trans('minecraft-modpacks::modpacks.installer.debug.waiting_backup'), [
+                            'waited_seconds' => $waited,
+                            'backup_completed_at' => $backup->completed_at,
+                            'backup_successful' => $backup->is_successful
+                        ]);
+                    }
+
+                    if ($waited >= $maxWaitSeconds && !$backupCreated) {
+                        Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.backup_timeout'), [
+                            'server' => $server->id,
+                            'backup_id' => $backup->id
+                        ]);
+                    }
+                } else {
+                    Log::warning(trans('minecraft-modpacks::modpacks.installer.warning.backup_null'), [
+                        'server' => $server->id
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error(trans('minecraft-modpacks::modpacks.installer.error.backup_failed'), [
+                    'server' => $server->id,
+                    'error' => $e->getMessage(),
+                    'class' => get_class($e),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+
             if ($deleteExisting) {
                 $this->deleteServerFiles($server);
             } else {
@@ -193,6 +422,11 @@ class ModpackInstaller
                 'egg_id' => $targetEgg->id,
             ]);
 
+            // Reset server status to allow access after installation
+            $server->refresh();
+            $server->update(['status' => null]);
+
+
             Log::info(trans('minecraft-modpacks::modpacks.installer.info.log2'), [
                 'server' => $server->id,
                 'provider' => $provider->value,
@@ -202,7 +436,30 @@ class ModpackInstaller
                 'runtime_egg' => $targetEgg->id,
             ]);
 
-            return true;
+            
+            // Save tracking information
+            $modpackDetails = $this->modpackManager->getModpackDetails($provider, $modpackId);
+            $modpackName = $modpackDetails['name'] ?? trans('minecraft-modpacks::modpacks.installer.unknown_modpack');
+
+            $versionDetails = $this->modpackManager->getModpackVersions($provider, $modpackId);
+            $versionName = $versionId;
+            foreach ($versionDetails as $version) {
+                if (($version['id'] ?? '') === $versionId) {
+                    $versionName = $version['name'] ?? $versionId;
+                    break;
+                }
+            }
+
+            $this->modpackTracker->saveInstalledModpack(
+                $server,
+                $provider->value,
+                $modpackId,
+                $modpackName,
+                $versionId,
+                $versionName
+            );
+
+return true;
         } catch (\Exception $e) {
             Log::error(trans('minecraft-modpacks::modpacks.installer.error.log3'), [
                 'error' => $e->getMessage(),

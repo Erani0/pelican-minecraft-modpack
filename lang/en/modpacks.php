@@ -33,6 +33,12 @@ return [
             'log28' => 'Failed to clear mods directory',
             'log29' => 'Failed to move file/directory',
             'log30' => 'Overrides directory is empty or could not be read',
+            'backup_name_failed' => 'Failed to generate backup name',
+            'delete_backup_failed' => 'Failed to delete old backup',
+            'check_delete_backups_failed' => 'Failed to check/delete old backups',
+            'backup_completed_failed' => 'Backup completed but failed',
+            'backup_timeout' => 'Backup timeout - proceeding anyway',
+            'backup_null' => 'Backup service returned null',
         ],
         'error' => [
             'log1' => 'Failed to get download info for modpack',
@@ -44,6 +50,7 @@ return [
             'log7' => 'Error reading file from daemon',
             'log8' => 'Error moving file/directory',
             'log9' => 'Failed to copy overrides to root',
+            'backup_failed' => 'Failed to create backup',
         ],
         'info' => [
             'log1' => 'Modpack installation completed',
@@ -66,6 +73,11 @@ return [
             'log18' => 'Cleared existing mods before installation',
             'log19' => 'Copying overrides to server root',
             'log20' => 'Successfully copied all overrides to server root',
+            'creating_backup' => 'Creating backup before modpack installation',
+            'backup_limit_reached' => 'Backup limit reached, deleting oldest backups',
+            'deleted_old_backup' => 'Deleted old backup',
+            'backup_initiated' => 'Backup initiated',
+            'backup_completed' => 'Backup completed successfully',
         ],
         'debug' => [
             'log1' => 'Files in root after extraction',
@@ -81,9 +93,17 @@ return [
             'log11' => 'File/directory moved successfully',
             'log12' => 'File/directory moved using repository',
             'log13' => 'Repository rename failed',
+            'backup_name_generated' => 'Backup name generated',
+            'backup_limit_check' => 'Backup limit check',
+            'waiting_backup' => 'Waiting for backup to complete',
+        ],
+        'unknown_modpack' => 'Unknown Modpack',
+        'unknown' => 'Unknown',
+        'backup' => [
+            'pre_installation' => 'Pre-Modpack-Installation',
+            'before_update' => 'Before Update: :modpack :version',
         ],
     ],
-    
     'providers' => [
         'atlauncher' => [
             'warning' => [
@@ -152,7 +172,6 @@ return [
             ],
         ],
     ],
-    
     'ui' => [
         'browser' => [
             'title' => 'Modpack Browser',
@@ -171,13 +190,24 @@ return [
             'cache_cleared' => 'Cache Cleared',
             'cache_cleared_message' => 'Modpack cache has been cleared successfully.',
             'modpacks' => 'Modpacks',
+            'installed_modpack_label' => 'Installed Modpack: %s %s',
+            'unknown' => 'Unknown',
+            'select_version' => 'Select Version',
+            'current_version_marker' => '(Current)',
+            'debug' => [
+                'update_check' => 'Update check',
+            ],
+            'error' => [
+                'check_updates' => 'Failed to check for updates',
+                'not_available' => 'Modpack Browser is not available for this server.',
+            ],
         ],
         'plugin' => [
             'curseforge_api_key' => 'CurseForge API Key',
             'curseforge_api_key_help' => 'Required for CurseForge modpack browsing. Get your key at console.curseforge.com',
             'cache_duration' => 'Cache Duration (seconds)',
             'request_timeout' => 'API Request Timeout (seconds)',
-			'modpacks_per_page' => 'Modpacks per Page',
+            'modpacks_per_page' => 'Modpacks per Page',
             'modpacks_per_page_help' => 'Number of modpacks to display per page (5-100)',
             'settings_updated' => 'Settings Updated',
             'settings_updated_message' => 'Plugin settings have been saved successfully.',
@@ -201,6 +231,31 @@ return [
             'latest' => 'Latest',
             'install' => 'Install',
             'refresh_cache' => 'Refresh Cache',
+        ],
+    ],
+    'tracking' => [
+        'installed_modpack' => 'Installed: :name :version',
+        'update_available' => 'Update Available',
+        'update_available_short' => 'Update Available',
+        'up_to_date' => 'Up to Date',
+        'update_modpack' => 'Update Modpack',
+        'current_version' => 'Current Version',
+        'creating_backup' => 'Creating backup before installation...',
+        'backup_created' => 'Backup created successfully',
+        'backup_error' => 'Failed to create backup',
+        'backup_failed' => 'Backup failed',
+        'warning' => [
+            'invalid_data' => 'Invalid modpack tracking data',
+            'read_failed' => 'Failed to read modpack tracking file',
+            'clear_failed' => 'Failed to clear modpack tracking data',
+            'no_put_method' => 'Repository does not support putContent method',
+        ],
+        'error' => [
+            'save_failed' => 'Failed to save modpack tracking data',
+        ],
+        'info' => [
+            'cleared' => 'Cleared modpack tracking data',
+            'saved' => 'Saved modpack tracking data',
         ],
     ],
 ];

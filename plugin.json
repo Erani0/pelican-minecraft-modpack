@@ -2,11 +2,11 @@
     "id": "minecraft-modpacks",
     "name": "Minecraft Modpacks",
     "author": "TimVida & Eranio",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "description": "Browse and install Minecraft modpacks from multiple platforms including Modrinth, CurseForge, ATLauncher, Feed The Beast, Technic, and Voids Wrath",
     "category": "plugin",
     "url": "https://github.com/timvida/pelican-minecraft-modpack",
-    "update_url": null,
+    "update_url": "",
     "namespace": "TimVida\\MinecraftModpacks",
     "class": "MinecraftModpacksPlugin",
     "panels": [
