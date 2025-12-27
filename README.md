@@ -304,7 +304,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Credits
 
-- **Author**: [timvida](https://github.com/timvida)
+- **Author**: [timvida](https://github.com/timvida) [Eranio](https://github.com/erani0)
 - **Built for**: [Pelican Panel](https://pelican.dev)
 - **Supported Platforms**: Modrinth, CurseForge, ATLauncher, Feed The Beast, Technic, Voids Wrath
 
