@@ -15,8 +15,4 @@
     ],
     "panel_version": "1.0.0-beta30",
     "composer_packages": null,
-    "meta": {
-        "status": "enabled",
-        "status_message": null
-    }
 }
